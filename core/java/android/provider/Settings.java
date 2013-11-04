@@ -3942,7 +3942,7 @@ public final class Settings {
          */
 
         /**
-         * LiteOS System modification starts
+         * LiteOS System settings modification start 
          */
         
         /**
@@ -7557,6 +7557,12 @@ public final class Settings {
          * @hide
          */
         public static final String HIDE_LOCK_SHORTCUTS = "hide_lock_shortcuts";
+
+        /**
+         * The TCP/IP port to run ADB on, or -1 for USB
+         * @hide
+         */
+        public static final String ADB_PORT = "adb_port";
 
         /**
          * This are the settings to be backed up.
