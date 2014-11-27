@@ -4099,13 +4099,15 @@ public final class Settings {
         /**
          * Setting to determine whether or not to show the battery percentage in the status bar.
          *    0 - Don't show percentage
-         *    1 - Show percentage
+         *    1 - Show percentage outside
+         *    2 - Show percentage inside
          * @hide
          */
         public static final String SHOW_BATTERY_PERCENT = "status_bar_show_battery_percent";
 
         /** @hide */
-        private static final Validator SHOW_BATTERY_PERCENT_VALIDATOR = BOOLEAN_VALIDATOR;
+        public static final Validator SHOW_BATTERY_PERCENT_VALIDATOR =
+                new SettingsValidators.InclusiveIntegerRangeValidator(0, 2);
 
         /**
          * IMPORTANT: If you add a new public settings you also have to add it to
@@ -8044,6 +8046,21 @@ public final class Settings {
          */
         public static final String PACKAGES_TO_CLEAR_DATA_BEFORE_FULL_RESTORE =
                 "packages_to_clear_data_before_full_restore";
+
+        /**
+         * Display style of the status bar battery information
+         * 0: Display the battery an icon in portrait mode
+         * 1: Display the battery an icon in landscape mode
+         * 2: Display the battery as a circle
+         * 3: Display the battery as a dotted circle
+         * 4: Display the battery as a big circle and show level into the icon
+         * 5: Display the battery as a big dotted circle and show level into the icon
+         * 6: Display the battery as text
+         * 7: Do not display the battery
+         * default: 0
+         * @hide
+         */
+        public static final String STATUS_BAR_BATTERY_STYLE = "status_bar_battery_style";
 
         /**
          * This are the settings to be backed up.
