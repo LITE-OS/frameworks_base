@@ -18,6 +18,11 @@
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
+    <!-- QS Config -->
+    <string name="qs_menu_item_columns">Столбцы</string>
+    <string name="qs_menu_item_columns_landscape">Столбцы в ландш.</string>
+    <string name="qs_menu_item_reset">Сброс</string>
+
     <!-- bring back tuner navbar editor from N -->
     <string name="preview">Предварительный просмотр</string>
     <string name="keycode">Код клавиши</string>
