@@ -88,10 +88,14 @@
     <java-symbol type="color" name="generic_theme_accent" />
 
     <!-- Proximity check on screen on -->
-   <java-symbol type="bool" name="config_proximityCheckOnWake" />
+    <java-symbol type="bool" name="config_proximityCheckOnWake" />
     <!-- Proximity check timeout -->
-   <java-symbol type="integer" name="config_proximityCheckTimeout" />
+    <java-symbol type="integer" name="config_proximityCheckTimeout" />
 
-   <!-- Proximity check on screen on default -->
-   <java-symbol type="bool" name="config_proximityCheckOnWakeEnabledByDefault" />
+    <!-- Proximity check on screen on default -->
+    <java-symbol type="bool" name="config_proximityCheckOnWakeEnabledByDefault" />
+
+    <!-- Should proximity check also affect fingerprint reader-->
+    <java-symbol type="bool" name="config_proximityCheckOnFingerprintWake" />
+
 </resources>
