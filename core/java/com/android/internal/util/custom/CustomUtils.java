@@ -22,6 +22,7 @@ import android.hardware.input.InputManager;
 import android.os.Handler;
 import android.os.UserHandle;
 import android.os.Looper;
+import android.os.PowerManager;
 import android.os.SystemClock;
 import android.os.SystemProperties;
 import android.os.RemoteException;
@@ -40,6 +41,13 @@ public class CustomUtils {
 
     public static final String INTENT_SCREENSHOT = "action_take_screenshot";
     public static final String INTENT_REGION_SCREENSHOT = "action_take_region_screenshot";
+
+    public static void switchScreenOff(Context ctx) {
+        PowerManager pm = (PowerManager) ctx.getSystemService(Context.POWER_SERVICE);
+        if (pm!= null) {
+            pm.goToSleep(SystemClock.uptimeMillis());
+        }
+    }
 
     public static void takeScreenshot(boolean full) {
         IWindowManager wm = WindowManagerGlobal.getWindowManagerService();
