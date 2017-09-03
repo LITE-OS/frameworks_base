@@ -103,7 +103,7 @@ interface IStatusBarService
     void hideFingerprintDialog();
 
     /**
-     * LiteOS.
+     * Lite Open Source
      */
     void toggleFlashlight();
     void toggleRecentApps();
