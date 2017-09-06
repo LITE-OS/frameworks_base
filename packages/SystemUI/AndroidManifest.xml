@@ -220,6 +220,9 @@
     <uses-permission android:name="android.permission.REBOOT" />
     <uses-permission android:name="android.permission.RECOVERY" />
 
+    <!-- To take Screenshots -->
+    <uses-permission android:name="android.permission.ACCESS_SURFACE_FLINGER" />
+
     <application
         android:name=".SystemUIApplication"
         android:persistent="true"
