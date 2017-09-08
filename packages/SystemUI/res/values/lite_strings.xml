@@ -68,4 +68,7 @@
     <string name="navbar_editor_title">Editor</string>
     <string name="navbar_editor_summary">Configure navigaton bar</string>
 
+    <!-- Seperate statusbar from tuner and launch externally -->
+    <string name="statusbar_items_title">Statusbar icons</string>
+
 </resources>

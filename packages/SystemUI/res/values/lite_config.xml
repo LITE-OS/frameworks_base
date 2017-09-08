@@ -21,4 +21,7 @@
         reboot,screenshot
     </string>
 
+    <!-- Seperate statusbar from tuner and launch externally -->
+    <string name="statusbar_items_title">Statusbar icon</string>
+
 </resources>
