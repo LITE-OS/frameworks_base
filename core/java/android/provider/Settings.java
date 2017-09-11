@@ -3245,6 +3245,11 @@ public final class Settings {
         public static final String BUTTON_BACKLIGHT_TIMEOUT = "button_backlight_timeout";
 
         /**
+         * @hide
+         */
+        public static final String BUTTON_BACKLIGHT_ON_TOUCH_ONLY = "button_backlight_on_touch_only";
+
+        /**
          * Control whether the process CPU usage meter should be shown.
          *
          * @deprecated This functionality is no longer available as of
@@ -4455,6 +4460,7 @@ public final class Settings {
             PRIVATE_SETTINGS.add(KEY_APP_SWITCH_DOUBLE_TAP_ACTION);
             PRIVATE_SETTINGS.add(KEY_CAMERA_LONG_PRESS_ACTION);
             PRIVATE_SETTINGS.add(KEY_CAMERA_DOUBLE_TAP_ACTION);
+            PRIVATE_SETTINGS.add(BUTTON_BACKLIGHT_ON_TOUCH_ONLY);
         }
 
         /**
