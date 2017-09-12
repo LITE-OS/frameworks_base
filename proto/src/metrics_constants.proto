@@ -6436,5 +6436,9 @@ message MetricsEvent {
 
     // LiseOS CONSTANTS
     LITE = 1700;
+
+    // Quick setting tiles
+    QUICK_SETTINGS = 1701;
+
   }
 }
