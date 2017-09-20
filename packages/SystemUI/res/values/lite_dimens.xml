@@ -17,6 +17,10 @@
 */
 -->
 <resources>
+
+    <!-- QS config -->
+    <dimen name="qs_tile_height_wo_label">48dp</dimen>
+
     <!-- OPA home dimens -->
     <dimen name="halo_inner_radius">10.0dip</dimen>
     <dimen name="halo_thickness">1.0dip</dimen>
