@@ -103,7 +103,12 @@ interface IStatusBarService
     void hideFingerprintDialog();
 
     /**
-     * Toggles the devices flashlight.
+     * LiteOS.
      */
     void toggleFlashlight();
+    void toggleRecentApps();
+    void toggleSplitScreen();
+    void preloadRecentApps();
+    void cancelPreloadRecentApps();
+    void startAssist(in Bundle args);
 }
