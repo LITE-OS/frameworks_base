@@ -138,6 +138,7 @@ import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
 import com.android.internal.statusbar.IStatusBarService;
 import com.android.internal.statusbar.NotificationVisibility;
 import com.android.internal.statusbar.StatusBarIcon;
+import com.android.internal.util.custom.CustomUtils;
 import com.android.internal.widget.LockPatternUtils;
 import com.android.internal.widget.MessagingGroup;
 import com.android.internal.widget.MessagingMessage;
@@ -624,6 +625,7 @@ public class StatusBar extends SystemUI implements DemoMode,
     private boolean mVibrateOnOpening;
     private VibratorHelper mVibratorHelper;
 
+    private int mCurrentUserId;
     private boolean mLockscreenMediaMetadata;
 
     @Override
@@ -747,6 +749,9 @@ public class StatusBar extends SystemUI implements DemoMode,
         }
 
         setHeadsUpUser(mLockscreenUserManager.getCurrentUserId());
+
+        mCurrentUserId = ActivityManager.getCurrentUser();
+        setHeadsUpUser(mCurrentUserId);
 
         IntentFilter internalFilter = new IntentFilter();
         internalFilter.addAction(BANNER_ACTION_CANCEL);
@@ -4568,27 +4573,51 @@ public class StatusBar extends SystemUI implements DemoMode,
         CustomSettingsObserver(Handler handler) {
             super(handler);
         }
-         void observe() {
+
+        void observe() {
             ContentResolver resolver = mContext.getContentResolver();
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.LOCKSCREEN_MEDIA_METADATA),
                     false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.NAVIGATION_BAR_SHOW),
+                    false, this, UserHandle.USER_ALL);
         }
-         @Override
+
+        @Override
         public void onChange(boolean selfChange, Uri uri) {
             if (uri.equals(Settings.System.getUriFor(
                     Settings.System.LOCKSCREEN_MEDIA_METADATA))) {
                 setLockscreenMediaMetadata();
+            } else if (uri.equals(Settings.System.getUriFor(
+                    Settings.System.NAVIGATION_BAR_SHOW))) {
+                setShowNavBar();
             }
         }
-         public void update() {
+
+        public void update() {
             setLockscreenMediaMetadata();
+            setShowNavBar();
         }
     }
-     private void setLockscreenMediaMetadata() {
+
+    private void setLockscreenMediaMetadata() {
         mLockscreenMediaMetadata = Settings.System.getIntForUser(mContext.getContentResolver(),
                 Settings.System.LOCKSCREEN_MEDIA_METADATA, 1, UserHandle.USER_CURRENT) == 1;
     }
+
+    private void setShowNavBar() {
+        int showNavBar = Settings.System.getIntForUser(
+                mContext.getContentResolver(), Settings.System.NAVIGATION_BAR_SHOW,
+                -1, mCurrentUserId);
+        if (showNavBar != -1){
+            boolean showNavBarBool = showNavBar == 1;
+            if (showNavBarBool !=  mShowNavBar){
+                updateNavigationBar();
+            }
+        }
+    }
+    private boolean mShowNavBar;
 
     public int getWakefulnessState() {
         return mWakefulnessLifecycle.getWakefulness();
@@ -5665,4 +5694,20 @@ public class StatusBar extends SystemUI implements DemoMode,
                     saveImportance.run();
                 }
             };
+
+    private void updateNavigationBar() {
+        mShowNavBar = CustomUtils.deviceSupportNavigationBarForUser(mContext, mCurrentUserId);
+        if (DEBUG) Log.v(TAG, "updateNavigationBar=" + mShowNavBar);
+
+        if (mShowNavBar) {
+            if (mNavigationBarView == null) {
+                createNavigationBar();
+            }
+        } else {
+            if (mNavigationBarView != null){
+                mWindowManager.removeViewImmediate(mNavigationBarView);
+                mNavigationBarView = null;
+            }
+        }
+    }
 }
