@@ -60,4 +60,7 @@
     <java-symbol type="integer" name="config_deviceHardwareKeys" />
     <java-symbol type="integer" name="config_deviceHardwareWakeKeys" />
 
+    <!-- Notification info -->
+    <java-symbol type="color" name="notification_info_button_text" />
+
 </resources>
