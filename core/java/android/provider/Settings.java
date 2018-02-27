@@ -4640,7 +4640,7 @@ public final class Settings {
         public static final String STATUSBAR_CLOCK_DATE_POSITION = "statusbar_clock_date_position";
 
         /**
-        * @hide
+         * @hide
          */
         public static final String START_SCREEN_STATE_SERVICE = "start_screen_state_service";
 
@@ -4698,6 +4698,20 @@ public final class Settings {
          * @hide
          */
         public static final String FP_SWIPE_TO_DISMISS_NOTIFICATIONS = "fp_swipe_to_dismiss_notifications";
+
+        /**
+         * Hold current font name and name of the originating package Uses "|" as a delimiter
+         *
+         * @hide
+         */
+        public static final String FONT_INFO = "font_info";
+
+        /**
+         * Hold list of installed font provider packages. Uses "|" as a delimiter
+         *
+         * @hide
+         */
+        public static final String FONT_PACKAGES = "font_packages";
 
         /**
          * Settings to backup. This is here so that it's in the same place as the settings
