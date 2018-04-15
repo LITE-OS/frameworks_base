@@ -2559,9 +2559,9 @@ public class StatusBar extends SystemUI implements DemoMode,
                         + mMediaController.getPackageName());
             }
             mMediaController.unregisterCallback(mMediaListener);
-            setTrackPlaying();
         }
         mMediaController = null;
+        setTrackPlaying();
     }
 
     private boolean sameSessions(MediaController a, MediaController b) {
@@ -5981,7 +5981,7 @@ public class StatusBar extends SystemUI implements DemoMode,
                     }
                     setCleanLayout(mAmbientMediaPlaying == 3 ? reason : -1);
                     if (isAmbientContainerAvailable()) {
-                        ((AmbientIndicationContainer)mAmbientIndicationContainer).setTickerMarquee(true);
+                        ((AmbientIndicationContainer)mAmbientIndicationContainer).setPulsing(true);
                     }
                 }
 
@@ -5991,7 +5991,7 @@ public class StatusBar extends SystemUI implements DemoMode,
                     setPulsing(null);
                     setCleanLayout(-1);
                     if (isAmbientContainerAvailable()) {
-                        ((AmbientIndicationContainer)mAmbientIndicationContainer).setTickerMarquee(false);
+                        ((AmbientIndicationContainer)mAmbientIndicationContainer).setPulsing(false);
                     }
                 }
 
