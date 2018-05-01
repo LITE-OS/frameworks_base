@@ -106,6 +106,8 @@ interface IStatusBarService
      * Lite Open Source
      */
     void toggleFlashlight();
+    void toggleCameraFlashOn();
+    void toggleCameraFlashOff();
     void toggleRecentApps();
     void toggleSplitScreen();
     void preloadRecentApps();

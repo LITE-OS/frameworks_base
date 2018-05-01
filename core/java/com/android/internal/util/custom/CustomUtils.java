@@ -59,6 +59,7 @@ public class CustomUtils {
             e.printStackTrace();
         }
     }
+
     public static void sendKeycode(int keycode) {
         long when = SystemClock.uptimeMillis();
         final KeyEvent evDown = new KeyEvent(when, when, KeyEvent.ACTION_DOWN, keycode, 0,
@@ -114,6 +115,14 @@ public class CustomUtils {
     public static void toggleFlashLight() {
         FireActions.toggleFlashLight();
     }
+
+    public static void toggleCameraFlashOn() {
+        FireActions.toggleCameraFlashOn();
+    }
+     public static void toggleCameraFlashOff() {
+        FireActions.toggleCameraFlashOff();
+    }
+
     private static final class FireActions {
         private static IStatusBarService mStatusBarService = null;
         private static IStatusBarService getStatusBarService() {
@@ -130,6 +139,28 @@ public class CustomUtils {
             if (service != null) {
                 try {
                     service.toggleFlashlight();
+                } catch (RemoteException e) {
+                    // do nothing.
+                }
+            }
+        }
+
+        public static void toggleCameraFlashOn(){
+            IStatusBarService service = getStatusBarService();
+            if (service != null) {
+                try {
+                    service.toggleCameraFlashOn();
+                } catch (RemoteException e) {
+                    // do nothing.
+                }
+            }
+        }
+
+        public static void toggleCameraFlashOff(){
+            IStatusBarService service = getStatusBarService();
+            if (service != null) {
+                try {
+                    service.toggleCameraFlashOff();
                 } catch (RemoteException e) {
                     // do nothing.
                 }
