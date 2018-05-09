@@ -72,9 +72,15 @@ interface IStatusBarService
      */
     void shutdown();
     void reboot(boolean safeMode);
+    void advancedReboot(String mode);
 
     void addTile(in ComponentName tile);
     void remTile(in ComponentName tile);
     void clickTile(in ComponentName tile);
     void handleSystemKey(in int key);
+
+    /**
+     * Toggles the devices flashlight.
+     */
+    void toggleFlashlight();
 }

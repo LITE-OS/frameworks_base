@@ -182,7 +182,7 @@ public class ConnectivityService extends IConnectivityManager.Stub
     public static final String SHORT_ARG = "--short";
     public static final String TETHERING_ARG = "tethering";
 
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
     private static final boolean VDBG = false;
 
     private static final boolean LOGD_RULES = false;
@@ -890,7 +890,7 @@ public class ConnectivityService extends IConnectivityManager.Stub
 
     private void handleMobileDataAlwaysOn() {
         final boolean enable = toBool(Settings.Global.getInt(
-                mContext.getContentResolver(), Settings.Global.MOBILE_DATA_ALWAYS_ON, 1));
+                mContext.getContentResolver(), Settings.Global.MOBILE_DATA_ALWAYS_ON, 0));
         final boolean isEnabled = (mNetworkRequests.get(mDefaultMobileDataRequest) != null);
         if (enable == isEnabled) {
             return;  // Nothing to do.

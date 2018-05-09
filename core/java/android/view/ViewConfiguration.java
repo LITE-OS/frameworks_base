@@ -23,6 +23,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Point;
 import android.os.RemoteException;
+import android.os.SystemProperties;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.util.SparseArray;
@@ -40,7 +41,7 @@ public class ViewConfiguration {
     /**
      * Duration of the fade when scrollbars fade away in milliseconds
      */
-    private static final int SCROLL_BAR_FADE_DURATION = 250;
+    private static final int SCROLL_BAR_FADE_DURATION = 280;
 
     /**
      * Default delay before the scrollbars fade in milliseconds
@@ -56,7 +57,7 @@ public class ViewConfiguration {
      * Defines the duration in milliseconds of the pressed state in child
      * components.
      */
-    private static final int PRESSED_STATE_DURATION = 64;
+    private static final int PRESSED_STATE_DURATION = 56;
 
     /**
      * Defines the default duration in milliseconds before a press turns into
@@ -94,7 +95,7 @@ public class ViewConfiguration {
      * is a tap or a scroll. If the user does not move within this interval, it is
      * considered to be a tap.
      */
-    private static final int TAP_TIMEOUT = 100;
+    private static final int TAP_TIMEOUT = 96;
 
     /**
      * Defines the duration in milliseconds we will wait to see if a touch event
@@ -194,7 +195,7 @@ public class ViewConfiguration {
     /**
      * Minimum velocity to initiate a fling, as measured in dips per second
      */
-    private static final int MINIMUM_FLING_VELOCITY = 50;
+    private static final int MINIMUM_FLING_VELOCITY = 60;
 
     /**
      * Maximum velocity to initiate a fling, as measured in dips per second
@@ -214,12 +215,12 @@ public class ViewConfiguration {
      * should be at least equal to the size of the screen in ARGB888 format.
      */
     @Deprecated
-    private static final int MAXIMUM_DRAWING_CACHE_SIZE = 480 * 800 * 4; // ARGB8888
+    private static final int MAXIMUM_DRAWING_CACHE_SIZE = 480 * 854 * 4; // ARGB8888
 
     /**
      * The coefficient of friction applied to flings/scrolls.
      */
-    private static final float SCROLL_FRICTION = 0.015f;
+    private static final float SCROLL_FRICTION = 0.012f;
 
     /**
      * Max distance in dips to overscroll for edge effects
@@ -408,10 +409,48 @@ public class ViewConfiguration {
 
         mDoubleTapTouchSlop = mTouchSlop;
 
-        mMinimumFlingVelocity = res.getDimensionPixelSize(
-                com.android.internal.R.dimen.config_viewMinFlingVelocity);
-        mMaximumFlingVelocity = res.getDimensionPixelSize(
-                com.android.internal.R.dimen.config_viewMaxFlingVelocity);
+        String minFlingVeloProp = "ro.min.fling_velocity"; // Min fling prop
+        String maxFlingVeloProp = "ro.max.fling_velocity"; // Max fling prop
+
+        // Get the properties
+        String minFlingVeloSysProp = SystemProperties.get(minFlingVeloProp);
+        String maxFlingVeloSysProp = SystemProperties.get(maxFlingVeloProp);
+        boolean isMaxFlingVeloPredefined = false;
+        boolean isMinFlingVeloPredefined = false;
+        int minFlingVeloTmp = 0;
+        int maxFlingVeloTmp = 0;
+
+        // Check whether the property values are valid
+        if(minFlingVeloSysProp != null && (!minFlingVeloSysProp.isEmpty()) &&
+            isNumeric(minFlingVeloSysProp)) {
+            minFlingVeloTmp = Integer.parseInt(minFlingVeloSysProp);
+            isMinFlingVeloPredefined = true;
+        }
+
+        if(maxFlingVeloSysProp != null && (!maxFlingVeloSysProp.isEmpty()) &&
+            isNumeric(maxFlingVeloSysProp)) {
+            maxFlingVeloTmp = Integer.parseInt(maxFlingVeloSysProp);
+            isMaxFlingVeloPredefined = true;
+        }
+
+        // Use config values if no prop available or invalid
+        if(!isMinFlingVeloPredefined && minFlingVeloTmp == 0)
+            minFlingVeloTmp = res.getDimensionPixelSize(
+                    com.android.internal.R.dimen.config_viewMinFlingVelocity);
+        if(!isMaxFlingVeloPredefined && maxFlingVeloTmp == 0)
+            maxFlingVeloTmp = res.getDimensionPixelSize(
+                    com.android.internal.R.dimen.config_viewMaxFlingVelocity);
+
+        // Check again for availability, otherwise use default values
+        if(minFlingVeloTmp * maxFlingVeloTmp == 0) {
+            minFlingVeloTmp = MINIMUM_FLING_VELOCITY;
+            maxFlingVeloTmp = MAXIMUM_FLING_VELOCITY;
+        }
+
+        // Assign the final variables
+        mMinimumFlingVelocity = minFlingVeloTmp;
+        mMaximumFlingVelocity = maxFlingVeloTmp;
+
         mGlobalActionsKeyTimeout = res.getInteger(
                 com.android.internal.R.integer.config_globalActionsKeyTimeout);
 
@@ -419,6 +458,15 @@ public class ViewConfiguration {
                 com.android.internal.R.dimen.config_horizontalScrollFactor);
         mVerticalScrollFactor = res.getDimensionPixelSize(
                 com.android.internal.R.dimen.config_verticalScrollFactor);
+    }
+
+    public static boolean isNumeric(String string) {
+        try {
+            Integer.parseInt(string);
+        } catch(NumberFormatException e) {
+            return false;
+        }
+        return true;
     }
 
     /**

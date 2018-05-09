@@ -383,6 +383,14 @@ class AppErrors {
             task = data.task;
             msg.obj = data;
             mService.mUiHandler.sendMessage(msg);
+
+            // Send broadcast intent to alert Substratum
+            Intent intent = new Intent("projekt.substratum.APP_CRASHED");
+            intent.putExtra("projekt.substratum.EXTRA_PACKAGE_NAME", r.info.packageName);
+            intent.putExtra("projekt.substratum.EXTRA_CRASH_REPEATING", data.repeating);
+            intent.putExtra("projekt.substratum.EXTRA_EXCEPTION_CLASS_NAME",
+                            crashInfo.exceptionClassName);
+            mContext.sendBroadcast(intent);
         }
 
         int res = result.get();
@@ -416,16 +424,11 @@ class AppErrors {
                 }
             }
             if (res == AppErrorDialog.FORCE_QUIT) {
-                long orig = Binder.clearCallingIdentity();
-                try {
-                    // Kill it with fire!
-                    mService.mStackSupervisor.handleAppCrashLocked(r);
-                    if (!r.persistent) {
-                        mService.removeProcessLocked(r, false, false, "crash");
-                        mService.mStackSupervisor.resumeFocusedStackTopActivityLocked();
-                    }
-                } finally {
-                    Binder.restoreCallingIdentity(orig);
+                // Kill it with fire!
+                mService.mStackSupervisor.handleAppCrashLocked(r);
+                if (!r.persistent) {
+                    mService.removeProcessLocked(r, false, false, "crash");
+                    mService.mStackSupervisor.resumeFocusedStackTopActivityLocked();
                 }
             }
             if (res == AppErrorDialog.FORCE_QUIT_AND_REPORT) {

@@ -37,6 +37,10 @@ import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
 import android.hardware.usb.UsbPort;
 import android.hardware.usb.UsbPortStatus;
+import android.net.NetworkInfo;
+import android.net.NetworkUtils;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
 import android.os.FileUtils;
 import android.os.Handler;
@@ -64,6 +68,7 @@ import com.android.server.FgThread;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -128,6 +133,7 @@ public class UsbDeviceManager {
     private static final int MSG_UPDATE_CHARGING_STATE = 9;
     private static final int MSG_UPDATE_HOST_STATE = 10;
     private static final int MSG_LOCALE_CHANGED = 11;
+    private static final int MSG_UPDATE_ADB_NOTIFICATION = 12;
 
     private static final int AUDIO_MODE_SOURCE = 1;
 
@@ -143,6 +149,8 @@ public class UsbDeviceManager {
     private static final String BOOT_MODE_PROPERTY = "ro.bootmode";
 
     private static final String ADB_NOTIFICATION_CHANNEL_ID_TV = "usbdevicemanager.adb.tv";
+
+    private static final String ADB_NOTIF_CHANNEL = "ADBNOTIF";
 
     private UsbHandler mHandler;
     private boolean mBootCompleted;
@@ -267,6 +275,9 @@ public class UsbDeviceManager {
                         .getDeviceList().entrySet().iterator();
                 if (intent.getAction().equals(UsbManager.ACTION_USB_DEVICE_ATTACHED)) {
                     mHandler.sendMessage(MSG_UPDATE_HOST_STATE, devices, true);
+                } else if (intent.getAction().equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
+                    NetworkInfo info = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
+                    mHandler.sendMessage(MSG_UPDATE_ADB_NOTIFICATION, (info != null && info.isConnected()));
                 } else {
                     mHandler.sendMessage(MSG_UPDATE_HOST_STATE, devices, false);
                 }
@@ -292,6 +303,11 @@ public class UsbDeviceManager {
 
         mContext.registerReceiver(languageChangedReceiver,
                 new IntentFilter(Intent.ACTION_LOCALE_CHANGED));
+
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+        mContext.registerReceiver(hostReceiver, intentFilter);
+
     }
 
     private UsbProfileGroupSettingsManager getCurrentSettings() {
@@ -316,6 +332,15 @@ public class UsbDeviceManager {
                                             .adb_debugging_notification_channel_tv),
                             NotificationManager.IMPORTANCE_HIGH));
         }
+
+        final NotificationChannel adbChannel = new NotificationChannel(
+                ADB_NOTIF_CHANNEL,
+                mContext.getString(com.android.internal.R.string.adb_debugging_notification_channel_tv),
+                NotificationManager.IMPORTANCE_LOW);
+        adbChannel.setBlockableSystem(true);
+        adbChannel.enableLights(false);
+        adbChannel.enableVibration(false);
+        mNotificationManager.createNotificationChannel(adbChannel);
 
         // We do not show the USB notification if the primary volume supports mass storage.
         // The legacy mass storage UI will be used instead.
@@ -422,12 +447,13 @@ public class UsbDeviceManager {
         private boolean mCurrentFunctionsApplied;
         private UsbAccessory mCurrentAccessory;
         private int mUsbNotificationId;
-        private boolean mAdbNotificationShown;
+        private int mAdbNotificationTitleRes;
         private int mCurrentUser = UserHandle.USER_NULL;
         private boolean mUsbCharging;
         private String mCurrentOemFunctions;
         private boolean mHideUsbNotification;
         private boolean mSupportsAllCombinations;
+        private boolean mWifiConnected;
 
         public UsbHandler(Looper looper) {
             super(looper);
@@ -474,6 +500,17 @@ public class UsbDeviceManager {
                 mContentResolver.registerContentObserver(
                         Settings.Global.getUriFor(Settings.Global.ADB_ENABLED),
                         false, new AdbSettingsObserver());
+
+                ContentObserver adbNotificationObserver = new ContentObserver(null) {
+                    @Override
+                    public void onChange(boolean selfChange) {
+                        updateAdbNotification(false);
+                    }
+                };
+
+                mContentResolver.registerContentObserver(
+                        Settings.Secure.getUriFor(Settings.Secure.ADB_PORT),
+                                false, adbNotificationObserver);
 
                 // Watch for USB configuration changes
                 mUEventObserver.startObserving(USB_STATE_MATCH);
@@ -1034,6 +1071,11 @@ public class UsbDeviceManager {
                     }
                     break;
                 }
+                case MSG_UPDATE_ADB_NOTIFICATION: {
+                    mWifiConnected = msg.arg1 == 1;
+                    updateAdbNotification(true);
+                    break;
+                }
             }
         }
 
@@ -1161,7 +1203,7 @@ public class UsbDeviceManager {
                                     .setDefaults(0)  // please be quiet
                                     .setColor(mContext.getColor(
                                             com.android.internal.R.color
-                                                    .system_notification_accent_color))
+                                            .system_notification_accent_color))
                                     .setContentTitle(title)
                                     .setContentText(message)
                                     .setContentIntent(pi)
@@ -1186,21 +1228,41 @@ public class UsbDeviceManager {
         private void updateAdbNotification(boolean force) {
             if (mNotificationManager == null) return;
             final int id = SystemMessage.NOTE_ADB_ACTIVE;
-            final int titleRes = com.android.internal.R.string.adb_active_notification_title;
+            boolean usbAdbActive = mAdbEnabled && mConnected;
+            boolean netAdbActive = mAdbEnabled &&
+                    Settings.Secure.getInt(mContentResolver, Settings.Secure.ADB_PORT, -1) > 0;
+            final int titleRes;
+            boolean hideNotification = "0".equals(SystemProperties.get("persist.adb.notify"));
+            if (hideNotification) {
+                titleRes = 0;
+            } else if (usbAdbActive && netAdbActive) {
+                titleRes = com.android.internal.R.string.adb_both_active_notification_title;
+            } else if (usbAdbActive) {
+                titleRes = com.android.internal.R.string.adb_active_notification_title;
+            } else if (netAdbActive) {
+                titleRes = com.android.internal.R.string.adb_net_active_notification_title;
+            } else {
+                titleRes = 0;
+            }
 
-            if (mAdbEnabled && mConnected) {
-                if ("0".equals(SystemProperties.get("persist.adb.notify"))) return;
-
-                if (force && mAdbNotificationShown) {
-                    mAdbNotificationShown = false;
+            if (force || titleRes != mAdbNotificationTitleRes) {
+                if (mAdbNotificationTitleRes != 0) {
                     mNotificationManager.cancelAsUser(null, id, UserHandle.ALL);
-                }
-
-                if (!mAdbNotificationShown) {
+                 }
+                if (titleRes != 0) {
                     Resources r = mContext.getResources();
                     CharSequence title = r.getText(titleRes);
                     CharSequence message = r.getText(
-                            com.android.internal.R.string.adb_active_notification_message);
+                            com.android.internal.R.string.adb_active_generic_notification_message);
+
+                    if (netAdbActive) {
+                        if (mWifiConnected) {
+                            WifiManager wifiManager = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
+                            WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+                            InetAddress address = NetworkUtils.intToInetAddress(wifiInfo.getIpAddress());
+                            message = "IP: " + address.getHostAddress() + ":5555";
+                        }
+                    }
 
                     Intent intent = new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
@@ -1209,29 +1271,27 @@ public class UsbDeviceManager {
                             intent, 0, null, UserHandle.CURRENT);
 
                     Notification notification =
-                            new Notification.Builder(mContext, SystemNotificationChannels.DEVELOPER)
+                            new Notification.Builder(mContext, ADB_NOTIF_CHANNEL)
                                     .setSmallIcon(com.android.internal.R.drawable.stat_sys_adb)
                                     .setWhen(0)
-                                    .setOngoing(true)
+                                    .setOngoing(false)
                                     .setTicker(title)
                                     .setDefaults(0)  // please be quiet
                                     .setColor(mContext.getColor(
                                             com.android.internal.R.color
-                                                    .system_notification_accent_color))
-                                    .setContentTitle(title)
-                                    .setContentText(message)
-                                    .setContentIntent(pi)
-                                    .setVisibility(Notification.VISIBILITY_PUBLIC)
-                                    .extend(new Notification.TvExtender()
-                                            .setChannelId(ADB_NOTIFICATION_CHANNEL_ID_TV))
-                                    .build();
-                    mAdbNotificationShown = true;
+                                            .system_notification_accent_color))
+	                            .setContentTitle(title)
+        	                    .setContentText(message)
+                	            .setContentIntent(pi)
+                            	    .setVisibility(Notification.VISIBILITY_PUBLIC)
+                            	    .extend(new Notification.TvExtender()
+                                    .setChannelId(ADB_NOTIFICATION_CHANNEL_ID_TV))
+                            	    .build();
+
                     mNotificationManager.notifyAsUser(null, id, notification,
                             UserHandle.ALL);
                 }
-            } else if (mAdbNotificationShown) {
-                mAdbNotificationShown = false;
-                mNotificationManager.cancelAsUser(null, id, UserHandle.ALL);
+                mAdbNotificationTitleRes = titleRes;
             }
         }
 

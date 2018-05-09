@@ -1101,7 +1101,9 @@ class ActivityStack<T extends StackWindowController> extends ConfigurationContai
         if (r != null) {
             final TaskRecord task = r.getTask();
             mRecentTasks.addLocked(task);
-            task.touchActiveTime();
+            if (task != null) {
+                task.touchActiveTime();
+            }
         }
     }
 
@@ -5007,7 +5009,13 @@ class ActivityStack<T extends StackWindowController> extends ConfigurationContai
             if (focusedStack && topTask) {
                 // Give the latest time to ensure foreground task can be sorted
                 // at the first, because lastActiveTime of creating task is 0.
-                ci.lastActiveTime = System.currentTimeMillis();
+                long currentTime = System.currentTimeMillis();
+                // only update lastActiveTime if the currentTime is greater.
+                // The current time becomes lesser if the system date is changed to past.
+                // This FIXes the recents app not launching issue.
+                if(ci.lastActiveTime < currentTime) {
+                    ci.lastActiveTime = currentTime;
+                }
                 topTask = false;
             }
 

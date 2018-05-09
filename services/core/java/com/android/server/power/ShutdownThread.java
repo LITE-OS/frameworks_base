@@ -24,8 +24,6 @@ import android.app.KeyguardManager;
 import android.app.ProgressDialog;
 import android.app.WallpaperColors;
 import android.app.WallpaperManager;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.IBluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -34,8 +32,6 @@ import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.media.AudioAttributes;
-import android.nfc.INfcAdapter;
-import android.nfc.NfcAdapter;
 import android.os.FileUtils;
 import android.os.Handler;
 import android.os.PowerManager;
@@ -70,10 +66,13 @@ import java.nio.charset.StandardCharsets;
 public final class ShutdownThread extends Thread {
     // constants
     private static final String TAG = "ShutdownThread";
-    private static final int PHONE_STATE_POLL_SLEEP_MSEC = 500;
+    private static final int PHONE_STATE_POLL_SLEEP_MSEC = 250;
     // maximum time we wait for the shutdown broadcast before going on.
     private static final int MAX_BROADCAST_TIME = 10*1000;
-    private static final int MAX_SHUTDOWN_WAIT_TIME = 20*1000;
+    //maximun time we wait for the mountservice before going on.
+    //Short time may cause unmount fail if 3rd app occupy files,
+    //but no impact on app use.
+    private static final int MAX_SHUTDOWN_WAIT_TIME = SystemProperties.getInt("sys.vendor.shutdown.waittime",20*1000);
     private static final int MAX_RADIO_WAIT_TIME = 12*1000;
     private static final int MAX_UNCRYPT_WAIT_TIME = 15*60*1000;
     // constants for progress bar. the values are roughly estimated based on timeout.
@@ -82,9 +81,15 @@ public final class ShutdownThread extends Thread {
     private static final int PACKAGE_MANAGER_STOP_PERCENT = 6;
     private static final int RADIO_STOP_PERCENT = 18;
     private static final int MOUNT_SERVICE_STOP_PERCENT = 20;
+    // Time we should wait for vendor subsystem shutdown
+    // Sleep times(ms) between checks of the vendor subsystem state
+    private static final int VENDOR_SUBSYS_STATE_CHECK_INTERVAL_MS = 100;
+    // Max time we wait for vendor subsystems to shut down before resuming
+    // with full system shutdown
+    private static final int VENDOR_SUBSYS_MAX_WAIT_MS = 10000;
 
     // length of vibration before shutting down
-    private static final int SHUTDOWN_VIBRATE_MS = 500;
+    private static final int SHUTDOWN_VIBRATE_MS = 250;
 
     // state tracking
     private static final Object sIsStartedGuard = new Object();
@@ -122,9 +127,7 @@ public final class ShutdownThread extends Thread {
     private static String METRIC_AM = "shutdown_activity_manager";
     private static String METRIC_PM = "shutdown_package_manager";
     private static String METRIC_RADIOS = "shutdown_radios";
-    private static String METRIC_BT = "shutdown_bt";
     private static String METRIC_RADIO = "shutdown_radio";
-    private static String METRIC_NFC = "shutdown_nfc";
     private static String METRIC_SM = "shutdown_storage_manager";
 
     private final Object mActionDoneSync = new Object();
@@ -326,12 +329,30 @@ public final class ShutdownThread extends Thread {
                 pd.setMessage(context.getText(com.android.internal.R.string.shutdown_progress));
                 pd.setIndeterminate(true);
             } else {
+                if (showSysuiReboot()) {
+                    return null;
+                }
                 // Factory reset path. Set the dialog message accordingly.
-                pd.setTitle(context.getText(com.android.internal.R.string.reboot_to_reset_title));
+                pd.setTitle(context.getText(com.android.internal.R.string.reboot_to_recovery_title));
                 pd.setMessage(context.getText(
-                            com.android.internal.R.string.reboot_to_reset_message));
+                            com.android.internal.R.string.reboot_to_recovery_message));
                 pd.setIndeterminate(true);
             }
+        } else if (mReason != null && mReason.equals(PowerManager.REBOOT_BOOTLOADER)) {
+            if (showSysuiReboot()) {
+                return null;
+            }
+            pd.setTitle(context.getText(com.android.internal.R.string.reboot_to_bootloader_title));
+            pd.setMessage(context.getText(
+                        com.android.internal.R.string.reboot_to_bootloader_message));
+            pd.setIndeterminate(true);
+        } else if (mReboot) {
+             if (showSysuiReboot()) {
+                  return null;
+             }
+            pd.setTitle(context.getText(com.android.internal.R.string.reboot_title));
+            pd.setMessage(context.getText(com.android.internal.R.string.reboot_message));
+            pd.setIndeterminate(true);
         } else {
             if (showSysuiReboot()) {
                 return null;
@@ -343,7 +364,7 @@ public final class ShutdownThread extends Thread {
         pd.setCancelable(false);
         pd.getWindow().setType(WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG);
 
-        pd.show();
+        if (!themeShutdownAnimationExists()) pd.show();
         return pd;
     }
 
@@ -418,7 +439,7 @@ public final class ShutdownThread extends Thread {
 
     /**
      * Makes sure we handle the shutdown gracefully.
-     * Shuts off power regardless of radio and bluetooth state if the alloted time has passed.
+     * Shuts off power regardless of radio state if the allotted time has passed.
      */
     public void run() {
         TimingsTraceLog shutdownTimingLog = newTimingsLog();
@@ -440,6 +461,10 @@ public final class ShutdownThread extends Thread {
         {
             String reason = (mReboot ? "1" : "0") + (mReason != null ? mReason : "");
             SystemProperties.set(SHUTDOWN_ACTION_PROPERTY, reason);
+        }
+
+        if (themeShutdownAnimationExists()) {
+            startShutdownAnimation();
         }
 
         /*
@@ -630,42 +655,10 @@ public final class ShutdownThread extends Thread {
         Thread t = new Thread() {
             public void run() {
                 TimingsTraceLog shutdownTimingsTraceLog = newTimingsLog();
-                boolean nfcOff;
-                boolean bluetoothReadyForShutdown;
                 boolean radioOff;
 
-                final INfcAdapter nfc =
-                        INfcAdapter.Stub.asInterface(ServiceManager.checkService("nfc"));
                 final ITelephony phone =
                         ITelephony.Stub.asInterface(ServiceManager.checkService("phone"));
-                final IBluetoothManager bluetooth =
-                        IBluetoothManager.Stub.asInterface(ServiceManager.checkService(
-                                BluetoothAdapter.BLUETOOTH_MANAGER_SERVICE));
-                try {
-                    nfcOff = nfc == null ||
-                             nfc.getState() == NfcAdapter.STATE_OFF;
-                    if (!nfcOff) {
-                        Log.w(TAG, "Turning off NFC...");
-                        metricStarted(METRIC_NFC);
-                        nfc.disable(false); // Don't persist new state
-                    }
-                } catch (RemoteException ex) {
-                Log.e(TAG, "RemoteException during NFC shutdown", ex);
-                    nfcOff = true;
-                }
-
-                try {
-                    bluetoothReadyForShutdown = bluetooth == null ||
-                            bluetooth.getState() == BluetoothAdapter.STATE_OFF;
-                    if (!bluetoothReadyForShutdown) {
-                        Log.w(TAG, "Disabling Bluetooth...");
-                        metricStarted(METRIC_BT);
-                        bluetooth.disable(mContext.getPackageName(), false);  // disable but don't persist new state
-                    }
-                } catch (RemoteException ex) {
-                    Log.e(TAG, "RemoteException during bluetooth shutdown", ex);
-                    bluetoothReadyForShutdown = true;
-                }
 
                 try {
                     radioOff = phone == null || !phone.needMobileRadioShutdown();
@@ -679,7 +672,7 @@ public final class ShutdownThread extends Thread {
                     radioOff = true;
                 }
 
-                Log.i(TAG, "Waiting for NFC, Bluetooth and Radio...");
+                Log.i(TAG, "Waiting for Radio...");
 
                 long delay = endTime - SystemClock.elapsedRealtime();
                 while (delay > 0) {
@@ -690,25 +683,6 @@ public final class ShutdownThread extends Thread {
                         sInstance.setRebootProgress(status, null);
                     }
 
-                    if (!bluetoothReadyForShutdown) {
-                        try {
-                          // BLE only mode can happen when BT is turned off
-                          // We will continue shutting down in such case
-                          bluetoothReadyForShutdown =
-                                  bluetooth.getState() == BluetoothAdapter.STATE_OFF ||
-                                  bluetooth.getState() == BluetoothAdapter.STATE_BLE_TURNING_OFF ||
-                                  bluetooth.getState() == BluetoothAdapter.STATE_BLE_ON;
-                        } catch (RemoteException ex) {
-                            Log.e(TAG, "RemoteException during bluetooth shutdown", ex);
-                            bluetoothReadyForShutdown = true;
-                        }
-                        if (bluetoothReadyForShutdown) {
-                            Log.i(TAG, "Bluetooth turned off.");
-                            metricEnded(METRIC_BT);
-                            shutdownTimingsTraceLog
-                                    .logDuration("ShutdownBt", TRON_METRICS.get(METRIC_BT));
-                        }
-                    }
                     if (!radioOff) {
                         try {
                             radioOff = !phone.needMobileRadioShutdown();
@@ -723,23 +697,9 @@ public final class ShutdownThread extends Thread {
                                     .logDuration("ShutdownRadio", TRON_METRICS.get(METRIC_RADIO));
                         }
                     }
-                    if (!nfcOff) {
-                        try {
-                            nfcOff = nfc.getState() == NfcAdapter.STATE_OFF;
-                        } catch (RemoteException ex) {
-                            Log.e(TAG, "RemoteException during NFC shutdown", ex);
-                            nfcOff = true;
-                        }
-                        if (nfcOff) {
-                            Log.i(TAG, "NFC turned off.");
-                            metricEnded(METRIC_NFC);
-                            shutdownTimingsTraceLog
-                                    .logDuration("ShutdownNfc", TRON_METRICS.get(METRIC_NFC));
-                        }
-                    }
 
-                    if (radioOff && bluetoothReadyForShutdown && nfcOff) {
-                        Log.i(TAG, "NFC, Radio and Bluetooth shutdown complete.");
+                    if (radioOff) {
+                        Log.i(TAG, "Radio shutdown complete.");
                         done[0] = true;
                         break;
                     }
@@ -756,7 +716,7 @@ public final class ShutdownThread extends Thread {
         } catch (InterruptedException ex) {
         }
         if (!done[0]) {
-            Log.w(TAG, "Timed out waiting for NFC, Radio and Bluetooth shutdown.");
+            Log.w(TAG, "Timed out waiting for Radio shutdown.");
         }
     }
 
@@ -769,7 +729,61 @@ public final class ShutdownThread extends Thread {
      * @param reason reason for reboot/shutdown
      */
     public static void rebootOrShutdown(final Context context, boolean reboot, String reason) {
+        String subsysProp;
+        subsysProp = SystemProperties.get("vendor.peripheral.shutdown_critical_list",
+                        "ERROR");
+        //If we don't have the shutdown critical subsystem list we can't
+        //really do anything. Proceed with full system shutdown.
+        if (!subsysProp.equals("ERROR")) {
+                Log.i(TAG, "Shutdown critical subsyslist is :"+subsysProp+": ");
+                Log.i(TAG, "Waiting for a maximum of " +
+                           (VENDOR_SUBSYS_MAX_WAIT_MS) + "ms");
+                String[] subsysList = subsysProp.split(" ");
+                int wait_count = 0;
+                boolean okToShutdown = true;
+                String subsysState;
+                int subsysListLength = subsysList.length;
+                do {
+                        okToShutdown = true;
+                        for (int i = 0; i < subsysListLength; i++) {
+                                subsysState =
+                                        SystemProperties.get(
+                                                        "vendor.peripheral." +
+                                                        subsysList[i] +
+                                                        ".state",
+                                                        "ERROR");
+                                if(subsysState.equals("ONLINE"))  {
+                                        //We only want to delay shutdown while
+                                        //one of the shutdown critical
+                                        //subsystems still shows as 'ONLINE'.
+                                        okToShutdown = false;
+                                }
+                        }
+                        if (okToShutdown == false) {
+                                SystemClock.sleep(VENDOR_SUBSYS_STATE_CHECK_INTERVAL_MS);
+                                wait_count++;
+                        }
+                } while (okToShutdown != true &&
+                                wait_count < (VENDOR_SUBSYS_MAX_WAIT_MS/VENDOR_SUBSYS_STATE_CHECK_INTERVAL_MS));
+                if (okToShutdown != true) {
+                        for (int i = 0; i < subsysList.length; i++) {
+                                subsysState =
+                                        SystemProperties.get(
+                                                        "vendor.peripheral." +
+                                                        subsysList[i] +
+                                                        ".state",
+                                                        "ERROR");
+                                if(subsysState.equals("ONLINE"))  {
+                                        Log.w(TAG, "Subsystem " + subsysList[i]+
+                                                   "did not shut down within timeout");
+                                }
+                        }
+                } else {
+                        Log.i(TAG, "Vendor subsystem(s) shutdown successful");
+                }
+        }
         if (reboot) {
+            stopShutdownAnimation();
             Log.i(TAG, "Rebooting, reason: " + reason);
             PowerManagerService.lowLevelReboot(reason);
             Log.e(TAG, "Reboot failed, will attempt shutdown instead");
@@ -790,6 +804,9 @@ public final class ShutdownThread extends Thread {
             } catch (InterruptedException unused) {
             }
         }
+
+        stopShutdownAnimation();
+
         // Shutdown power
         Log.i(TAG, "Performing low-level shutdown...");
         PowerManagerService.lowLevelShutdown(reason);
@@ -878,6 +895,26 @@ public final class ShutdownThread extends Thread {
                 FileUtils.stringToFile(RecoverySystem.UNCRYPT_STATUS_FILE, timeoutMessage);
             } catch (IOException e) {
                 Log.e(TAG, "Failed to write timeout message to uncrypt status", e);
+            }
+        }
+    }
+
+    private static boolean themeShutdownAnimationExists() {
+        return new File("/data/system/theme/shutdownanimation.zip").exists();
+    }
+
+    private static void startShutdownAnimation() {
+        SystemProperties.set("service.bootanim.exit", "0");
+        SystemProperties.set("sys.powerctl", "animate");
+        SystemProperties.set("ctl.start", "bootanim");
+    }
+
+    private static void stopShutdownAnimation() {
+        SystemProperties.set("service.bootanim.exit", "1");
+        while (SystemProperties.get("init.svc.bootanim").equals("running")) {
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException unused) {
             }
         }
     }

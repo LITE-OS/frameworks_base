@@ -46,7 +46,6 @@
     <uses-permission android:name="android.permission.MANAGE_USERS" />
     <uses-permission android:name="android.permission.READ_PROFILE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
-    <uses-permission android:name="android.permission.CONFIGURE_WIFI_DISPLAY" />
     <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
     <uses-permission android:name="android.permission.GET_APP_OPS_STATS" />
 
@@ -199,6 +198,18 @@
     <!-- to change themes - light or dark -->
     <uses-permission android:name="android.permission.CHANGE_OVERLAY_PACKAGES" />
 
+    <!-- To take Screenshots -->
+    <uses-permission android:name="android.permission.ACCESS_SURFACE_FLINGER" />
+    <uses-permission android:name="android.permission.FORCE_STOP_PACKAGES" />
+
+    <!-- sync tile -->
+    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
+    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
+
+    <!-- Reboot -->
+    <uses-permission android:name="android.permission.REBOOT" />
+    <uses-permission android:name="android.permission.RECOVERY" />
+
     <application
         android:name=".SystemUIApplication"
         android:persistent="true"
@@ -254,6 +265,16 @@
 
                 <data android:scheme="package" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="com.android.systemui.action.RESTART_THEME" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".SoundRefreshReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.android.systemui.action.REFRESH_SOUND" />
+            </intent-filter>
         </receiver>
 
         <service android:name=".ImageWallpaper"
@@ -261,24 +282,51 @@
                 android:exported="true" />
 
         <activity android:name=".tuner.TunerActivity"
-                  android:enabled="false"
                   android:icon="@drawable/tuner"
-                  android:theme="@style/TunerSettings"
+                  android:theme="@style/CustomTunerSettings"
                   android:label="@string/system_ui_tuner"
                   android:process=":tuner"
+                  android:parentActivityName="com.cardinal.settings.WingsSettings"
                   android:exported="true">
-            <intent-filter>
-                <action android:name="com.android.settings.action.EXTRA_SETTINGS" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-            <meta-data android:name="com.android.settings.category"
-                    android:value="com.android.settings.category.ia.system" />
+        </activity>
+
+        <activity android:name=".tuner.StatusBarIconsTunerActivity"
+                  android:icon="@drawable/tuner"
+                  android:theme="@style/CustomTunerSettings"
+                  android:label="@string/statusbar_icons_blacklist"
+                  android:process=":tuner"
+                  android:parentActivityName="com.cardinal.settings.fragments.StatusBarSettings"
+                  android:exported="true">
+        </activity>
+
+        <activity android:name=".tuner.NavBarTunerActivity"
+                  android:theme="@style/CustomTunerSettings"
+                  android:label="@string/navbar_tuner_activity"
+                  android:process=":tuner"
+                  android:parentActivityName="com.cardinal.settings.fragments.NavigationBarSettings"
+                  android:exported="true">
+        </activity>
+
+        <activity android:name=".tuner.LockscreenTunerActivity"
+                  android:theme="@style/CustomTunerSettings"
+                  android:label="@string/lockscreen_tuner_activity"
+                  android:process=":tuner"
+                  android:parentActivityName="com.cardinal.settings.fragments.LockScreenSettings"
+                  android:exported="true">
+        </activity>
+
+        <activity android:name=".tuner.PowerNotificationsTunerActivity"
+                  android:theme="@style/CustomTunerSettings"
+                  android:label="@string/powernotif_tuner_activity"
+                  android:process=":tuner"
+                  android:parentActivityName="com.cardinal.settings.fragments.StatusBarSettings"
+                  android:exported="true">
         </activity>
 
         <activity-alias android:name=".DemoMode"
                   android:targetActivity=".tuner.TunerActivity"
                   android:icon="@drawable/tuner"
-                  android:theme="@style/TunerSettings"
+                  android:theme="@style/CustomTunerSettings"
                   android:label="@string/demo_mode"
                   android:process=":tuner"
                   android:exported="true">
@@ -547,13 +595,13 @@
             android:singleUser="true"
             android:permission="android.permission.BIND_DREAM_SERVICE" />
 
-        <receiver
+        <!--<receiver
             android:name=".tuner.TunerService$ClearReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.android.systemui.action.CLEAR_TUNER" />
             </intent-filter>
-        </receiver>
+        </receiver>-->
 
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -570,6 +618,16 @@
             <intent-filter>
                 <action android:name="com.android.intent.action.DISMISS_KEYBOARD_SHORTCUTS" />
                 <action android:name="com.android.intent.action.SHOW_KEYBOARD_SHORTCUTS" />
+            </intent-filter>
+        </receiver>
+
+        <!-- omni additions start -->
+        <service android:name=".CPUInfoService"
+                android:exported="false" />
+
+        <receiver android:name=".BootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
     </application>

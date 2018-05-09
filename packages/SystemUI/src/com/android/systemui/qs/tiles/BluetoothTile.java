@@ -70,12 +70,20 @@ public class BluetoothTile extends QSTileImpl<BooleanState> {
     }
 
     @Override
+    public boolean isDualTarget() {
+        return true;
+    }
+
+    @Override
     public BooleanState newTileState() {
         return new BooleanState();
     }
 
     @Override
     public void handleSetListening(boolean listening) {
+        if (mController == null) {
+            return;
+        }
         if (listening) {
             mController.addCallback(mCallback);
         } else {
@@ -115,6 +123,9 @@ public class BluetoothTile extends QSTileImpl<BooleanState> {
 
     @Override
     protected void handleUpdateState(BooleanState state, Object arg) {
+        if (mController == null) {
+            return;
+        }
         final boolean enabled = mController.isBluetoothEnabled();
         final boolean connected = mController.isBluetoothConnected();
         state.isTransient = mController.isBluetoothConnecting()

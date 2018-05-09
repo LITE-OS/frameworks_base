@@ -633,13 +633,14 @@ public class KeyguardViewMediator extends SystemUI {
             boolean trust = mTrustManager.isTrustUsuallyManaged(currentUser);
             boolean fingerprint = mUpdateMonitor.isUnlockWithFingerprintPossible(currentUser);
             boolean any = trust || fingerprint;
+            boolean fpunlock = mUpdateMonitor.isFingerprintUnlockAfterRebootAllowed();
             KeyguardUpdateMonitor.StrongAuthTracker strongAuthTracker =
                     mUpdateMonitor.getStrongAuthTracker();
             int strongAuth = strongAuthTracker.getStrongAuthForUser(currentUser);
 
-            if (any && !strongAuthTracker.hasUserAuthenticatedSinceBoot()) {
+            if (any && !strongAuthTracker.hasUserAuthenticatedSinceBoot() && !fpunlock) {
                 return KeyguardSecurityView.PROMPT_REASON_RESTART;
-            } else if (any && (strongAuth & STRONG_AUTH_REQUIRED_AFTER_TIMEOUT) != 0) {
+            } else if (any && !fpunlock && (strongAuth & STRONG_AUTH_REQUIRED_AFTER_TIMEOUT) != 0) {
                 return KeyguardSecurityView.PROMPT_REASON_TIMEOUT;
             } else if (any && (strongAuth & STRONG_AUTH_REQUIRED_AFTER_DPM_LOCK_NOW) != 0) {
                 return KeyguardSecurityView.PROMPT_REASON_DEVICE_ADMIN;
@@ -2149,6 +2150,24 @@ public class KeyguardViewMediator extends SystemUI {
             } catch (RemoteException e) {
                 Slog.w(TAG, "Failed to call to IKeyguardStateCallback", e);
             }
+        }
+    }
+
+    public void refreshSounds() {
+        ContentResolver cr = mContext.getContentResolver();
+        String soundPath = Settings.Global.getString(cr, Settings.Global.LOCK_SOUND);
+        if (soundPath != null) {
+            mLockSoundId = mLockSounds.load(soundPath, 1);
+        }
+        if (soundPath == null || mLockSoundId == 0) {
+            Log.w(TAG, "failed to load lock sound from " + soundPath);
+        }
+        soundPath = Settings.Global.getString(cr, Settings.Global.UNLOCK_SOUND);
+        if (soundPath != null) {
+            mUnlockSoundId = mLockSounds.load(soundPath, 1);
+        }
+        if (soundPath == null || mUnlockSoundId == 0) {
+            Log.w(TAG, "failed to load unlock sound from " + soundPath);
         }
     }
 }

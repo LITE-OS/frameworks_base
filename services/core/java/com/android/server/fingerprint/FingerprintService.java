@@ -431,10 +431,12 @@ public class FingerprintService extends SystemService implements IHwBinder.Death
         if (client != null && client.onAuthenticated(fingerId, groupId)) {
             removeClient(client);
         }
-        if (fingerId != 0) {
-            mPerformanceStats.accept++;
-        } else {
-            mPerformanceStats.reject++;
+        if (mPerformanceStats != null) {
+            if (fingerId != 0) {
+                mPerformanceStats.accept++;
+            } else {
+                mPerformanceStats.reject++;
+            }
         }
     }
 
@@ -816,9 +818,9 @@ public class FingerprintService extends SystemService implements IHwBinder.Death
                 mFailedAttempts++;
                 mTimedLockoutCleared = false;
                 final int lockoutMode = getLockoutMode();
-                if (lockoutMode == AuthenticationClient.LOCKOUT_PERMANENT) {
+                if (mPerformanceStats != null && lockoutMode == AuthenticationClient.LOCKOUT_PERMANENT) {
                     mPerformanceStats.permanentLockout++;
-                } else if (lockoutMode == AuthenticationClient.LOCKOUT_TIMED) {
+                } else if (mPerformanceStats != null && lockoutMode == AuthenticationClient.LOCKOUT_TIMED) {
                     mPerformanceStats.lockout++;
                 }
 
@@ -1131,7 +1133,12 @@ public class FingerprintService extends SystemService implements IHwBinder.Death
                     if (client instanceof AuthenticationClient) {
                         if (client.getToken() == token) {
                             if (DEBUG) Slog.v(TAG, "stop client " + client.getOwnerString());
-                            client.stop(client.getToken() == token);
+                            final boolean notifyClient = mContext.getResources().getBoolean(
+                                    com.android.internal.R.bool.config_notifyClientOnFingerprintCancelSuccess);
+                            final int stopResult = client.stop(client.getToken() == token);
+                            if (notifyClient && (stopResult == 0)) {
+                                handleError(mHalDeviceId, FingerprintManager.FINGERPRINT_ERROR_CANCELED, 0);
+                            }
                         } else {
                             if (DEBUG) Slog.v(TAG, "can't stop client "
                                     + client.getOwnerString() + " since tokens don't match");

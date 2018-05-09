@@ -63,6 +63,10 @@ public class NavigationBarInflaterView extends FrameLayout
     public static final String RECENT = "recent";
     public static final String NAVSPACE = "space";
     public static final String CLIPBOARD = "clipboard";
+    public static final String KB_LEFT = "kb_left";
+    public static final String KB_RIGHT = "kb_right";
+    public static final String SKIP_PREV = "skip_prev";
+    public static final String SKIP_NEXT = "skip_next";
     public static final String KEY = "key";
     public static final String LEFT = "left";
     public static final String RIGHT = "right";
@@ -334,6 +338,14 @@ public class NavigationBarInflaterView extends FrameLayout
             v = inflater.inflate(R.layout.nav_key_space, parent, false);
         } else if (CLIPBOARD.equals(button)) {
             v = inflater.inflate(R.layout.clipboard, parent, false);
+        } else if (KB_LEFT.equals(button)) {
+            v = inflater.inflate(R.layout.kb_left, parent, false);
+        } else if (KB_RIGHT.equals(button)) {
+            v = inflater.inflate(R.layout.kb_right, parent, false);
+        } else if (SKIP_PREV.equals(button)) {
+            v = inflater.inflate(R.layout.skip_prev, parent, false);
+        } else if (SKIP_NEXT.equals(button)) {
+            v = inflater.inflate(R.layout.skip_next, parent, false);
         } else if (button.startsWith(KEY)) {
             String uri = extractImage(button);
             int code = extractKeycode(button);
@@ -400,8 +412,6 @@ public class NavigationBarInflaterView extends FrameLayout
             }
         }
     }
-
-
 
     private void clearViews() {
         if (mButtonDispatchers != null) {

@@ -90,10 +90,10 @@ public final class RotationPolicy {
      * Returns true if the rotation-lock toggle should be shown in system UI.
      */
     public static boolean isRotationLockToggleVisible(Context context) {
-        return isRotationSupported(context) &&
+        return isRotationSupported(context); /* &&
                 Settings.System.getIntForUser(context.getContentResolver(),
                         Settings.System.HIDE_ROTATION_LOCK_TOGGLE_FOR_ACCESSIBILITY, 0,
-                        UserHandle.USER_CURRENT) == 0;
+                        UserHandle.USER_CURRENT) == 0;*/
     }
 
     /**
@@ -130,7 +130,7 @@ public final class RotationPolicy {
     }
 
     private static boolean areAllRotationsAllowed(Context context) {
-        return context.getResources().getBoolean(R.bool.config_allowAllRotations);
+        return true;
     }
 
     private static void setRotationLock(final boolean enabled, final int rotation) {

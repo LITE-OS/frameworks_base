@@ -2896,7 +2896,7 @@ public class SettingsProvider extends ContentProvider {
         }
 
         private final class UpgradeController {
-            private static final int SETTINGS_VERSION = 148;
+            private static final int SETTINGS_VERSION = 149;
 
             private final int mUserId;
 
@@ -3454,6 +3454,24 @@ public class SettingsProvider extends ContentProvider {
                         }
                     }
                     currentVersion = 148;
+                }
+
+                if (currentVersion == 148) {
+                    // Version 149
+                    /* Play services check this Setting internally to notify about
+                        new OTA so we force it to disabled once forever */
+                    if (userId == UserHandle.USER_SYSTEM) {
+                        final SettingsState globalSettings = getGlobalSettingsLocked();
+                        Setting currentSetting = globalSettings.getSettingLocked(
+                                Settings.Global.OTA_DISABLE_AUTOMATIC_UPDATE);
+                        if (currentSetting.isNull()) {
+                            globalSettings.insertSettingLocked(
+                                    Settings.Global.OTA_DISABLE_AUTOMATIC_UPDATE,
+                                    "1", null, true, SettingsState.SYSTEM_PACKAGE_NAME);
+                        }
+                    }
+
+                    currentVersion = 149;
                 }
 
                 // vXXX: Add new settings above this point.

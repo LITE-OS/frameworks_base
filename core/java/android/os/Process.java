@@ -151,6 +151,9 @@ public class Process {
      */
     public static final int OTA_UPDATE_UID = 1061;
 
+    /** {@hide} */
+    public static final int NOBODY_UID = 9999;
+
     /**
      * Defines the start of a range of UIDs (and GIDs), going from this
      * number to {@link #LAST_APPLICATION_UID} that are reserved for assigning
@@ -455,10 +458,11 @@ public class Process {
                                   String instructionSet,
                                   String appDataDir,
                                   String invokeWith,
-                                  String[] zygoteArgs) {
+                                  String[] zygoteArgs,
+                                  boolean refreshFont) {
         return zygoteProcess.start(processClass, niceName, uid, gid, gids,
                     debugFlags, mountExternal, targetSdkVersion, seInfo,
-                    abi, instructionSet, appDataDir, invokeWith, zygoteArgs);
+                    abi, instructionSet, appDataDir, invokeWith, zygoteArgs, refreshFont);
     }
 
     /** @hide */
@@ -472,10 +476,11 @@ public class Process {
                                   String instructionSet,
                                   String appDataDir,
                                   String invokeWith,
-                                  String[] zygoteArgs) {
+                                  String[] zygoteArgs,
+                                  boolean refreshFont) {
         return WebViewZygote.getProcess().start(processClass, niceName, uid, gid, gids,
                     debugFlags, mountExternal, targetSdkVersion, seInfo,
-                    abi, instructionSet, appDataDir, invokeWith, zygoteArgs);
+                    abi, instructionSet, appDataDir, invokeWith, zygoteArgs, refreshFont);
     }
 
     /**
