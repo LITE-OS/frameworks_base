@@ -37,6 +37,7 @@ import android.support.annotation.VisibleForTesting;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.View.OnClickListener;
+//import android.view.View.OnLongClickListener;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -374,7 +375,7 @@ public class QSFooterImpl extends FrameLayout implements QSFooter,
         }
     }
 
-    @Override
+/*    @Override
     public boolean onLongClick(View v) {
         if (v == mSettingsButton) {
             startSettingsLongClickActivity();
@@ -388,7 +389,7 @@ public class QSFooterImpl extends FrameLayout implements QSFooter,
         vibrateFooter(20);
         return false;
     }
-
+*/
     private void startSettingsActivity() {
         mActivityStarter.startActivity(new Intent(android.provider.Settings.ACTION_SETTINGS),
                 true /* dismissShade */);
