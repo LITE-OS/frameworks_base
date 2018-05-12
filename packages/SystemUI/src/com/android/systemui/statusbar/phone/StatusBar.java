@@ -5107,6 +5107,15 @@ public class StatusBar extends SystemUI implements DemoMode,
         }
     }
 
+    private void updateThemeAndReinflate(){
+        updateTheme();
+        mHandler.postDelayed(() -> {
+            if (mStatusBarView != null) {
+                reinflateViews();
+            }
+        }, 1000);
+    }
+
     private void updateDozingState() {
         Trace.traceCounter(Trace.TRACE_TAG_APP, "dozing", mDozing ? 1 : 0);
         Trace.beginSection("StatusBar#updateDozingState");
@@ -6286,6 +6295,9 @@ public class StatusBar extends SystemUI implements DemoMode,
                     Settings.System.SYSTEM_UI_THEME),
                     false, this, UserHandle.USER_ALL);
             resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.SYSTEM_THEME_CURRENT_OVERLAY),
+                    false, this, UserHandle.USER_ALL)
+            resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.QS_FOOTER_WARNINGS),
                     false, this, UserHandle.USER_ALL);
             resolver.registerContentObserver(Settings.System.getUriFor(
@@ -6327,8 +6339,9 @@ public class StatusBar extends SystemUI implements DemoMode,
                     uri.equals(Settings.Secure.getUriFor(Settings.Secure.LOCK_QS_DISABLED))) {
 		        setUpdateSettings();
             } else if (uri.equals(Settings.System.getUriFor(
-                    Settings.System.SYSTEM_UI_THEME))) {
-                updateTheme();
+                    Settings.System.SYSTEM_UI_THEME)) || uri.equals(Settings.System.getUriFor(
+                    Settings.System.SYSTEM_THEME_CURRENT_OVERLAY))) {
+                updateThemeAndReinflate();
             } else if (uri.equals(Settings.System.getUriFor(
                     Settings.System.QS_FOOTER_WARNINGS))) {
                 setQsPanelOptions();
