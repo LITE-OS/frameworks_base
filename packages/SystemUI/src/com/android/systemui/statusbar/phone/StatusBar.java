@@ -277,6 +277,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+import com.android.systemui.custom.Themes;
+
 public class StatusBar extends SystemUI implements DemoMode,
         DragDownHelper.DragDownCallback, ActivityStarter, OnUnlockMethodChangedListener,
         OnHeadsUpChangedListener, VisualStabilityManager.Callback, CommandQueue.Callbacks,
@@ -3059,6 +3061,17 @@ public class StatusBar extends SystemUI implements DemoMode,
         return themeInfo != null && themeInfo.isEnabled();
     }
 
+    public boolean isUsingBlackTheme() {
+        OverlayInfo themeInfo = null;
+        try {
+            themeInfo = mOverlayManager.getOverlayInfo("com.android.system.theme.black",
+                    mCurrentUserId);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+        return themeInfo != null && themeInfo.isEnabled();
+    }
+
     @Nullable
     public View getAmbientIndicationContainer() {
         return mAmbientIndicationContainer;
@@ -5047,6 +5060,7 @@ public class StatusBar extends SystemUI implements DemoMode,
         int userThemeSetting = Settings.System.getIntForUser(mContext.getContentResolver(),
                 Settings.System.SYSTEM_UI_THEME, 0, mCurrentUserId);
         boolean useDarkTheme = false;
+        boolean useBlackTheme = false;
         if (userThemeSetting == 0) {
             // The system wallpaper defines if QS should be light or dark.
             WallpaperColors systemColors = mColorExtractor
@@ -5055,15 +5069,15 @@ public class StatusBar extends SystemUI implements DemoMode,
                     && (systemColors.getColorHints() & WallpaperColors.HINT_SUPPORTS_DARK_THEME) != 0;
         } else {
             useDarkTheme = userThemeSetting == 2;
+            useBlackTheme = userThemeSetting == 3;
         }
         if (isUsingDarkTheme() != useDarkTheme) {
-            try {
-                mOverlayManager.setEnabled("com.android.systemui.theme.dark",
-                        useDarkTheme, mCurrentUserId);
-            } catch (RemoteException e) {
-                Log.w(TAG, "Can't change theme", e);
-            }
+            Themes.updateDarkOverlays(mOverlayManager, useDarkTheme, mCurrentUserId);
         }
+        if (isUsingBlackTheme() != useBlackTheme) {
+            Themes.updateBlackOverlays(mOverlayManager, useBlackTheme, mCurrentUserId);
+        }
+        
 
         // Lock wallpaper defines the color of the majority of the views, hence we'll use it
         // to set our default theme.
