@@ -12,10 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-LOCAL_PATH := frameworks/base/data/sounds
+base := frameworks/base/data/sounds
 
 PRODUCT_COPY_FILES += \
-	$(call find-copy-subdir-files,*,$(LOCAL_PATCH)/pixel/alarms,system/media/audio/alarms) \
-	$(call find-copy-subdir-files,*,$(LOCAL_PATCH)/pixel/notifications,system/media/audio/notifications) \
-	$(call find-copy-subdir-files,*,$(LOCAL_PATCH)/pixel/ringtones,system/media/audio/ringtones) \
-	$(call find-copy-subdir-files,*,$(LOCAL_PATCH)/pixel/ui,system/media/audio/ui)
+	$(call find-copy-subdir-files,*,$(base)/pixel/alarms,system/media/audio/alarms) \
+	$(call find-copy-subdir-files,*,$(base)/pixel/notifications,system/media/audio/notifications) \
+	$(call find-copy-subdir-files,*,$(base)/pixel/ringtones,system/media/audio/ringtones) \
+	$(call find-copy-subdir-files,*,$(base)/pixel/ui,system/media/audio/ui)
+	
