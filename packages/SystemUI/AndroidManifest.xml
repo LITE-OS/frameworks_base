@@ -295,7 +295,7 @@
                   android:theme="@style/CustomTunerSettings"
                   android:label="@string/system_ui_tuner"
                   android:process=":tuner"
-                  android:parentActivityName="com.cardinal.settings.WingsSettings"
+                  android:parentActivityName="com.lite.settings.WingsSettings"
                   android:exported="true">
         </activity>
 
@@ -304,7 +304,7 @@
                   android:theme="@style/CustomTunerSettings"
                   android:label="@string/statusbar_icons_blacklist"
                   android:process=":tuner"
-                  android:parentActivityName="com.cardinal.settings.fragments.StatusBarSettings"
+                  android:parentActivityName="com.lite.settings.fragments.StatusBarSettings"
                   android:exported="true">
         </activity>
 
@@ -312,7 +312,7 @@
                   android:theme="@style/CustomTunerSettings"
                   android:label="@string/navbar_tuner_activity"
                   android:process=":tuner"
-                  android:parentActivityName="com.cardinal.settings.fragments.NavigationBarSettings"
+                  android:parentActivityName="com.lite.settings.fragments.NavigationBarSettings"
                   android:exported="true">
         </activity>
 
@@ -320,7 +320,7 @@
                   android:theme="@style/CustomTunerSettings"
                   android:label="@string/lockscreen_tuner_activity"
                   android:process=":tuner"
-                  android:parentActivityName="com.cardinal.settings.fragments.LockScreenSettings"
+                  android:parentActivityName="com.lite.settings.fragments.LockScreenSettings"
                   android:exported="true">
         </activity>
 
@@ -328,7 +328,7 @@
                   android:theme="@style/CustomTunerSettings"
                   android:label="@string/powernotif_tuner_activity"
                   android:process=":tuner"
-                  android:parentActivityName="com.cardinal.settings.fragments.StatusBarSettings"
+                  android:parentActivityName="com.lite.settings.fragments.StatusBarSettings"
                   android:exported="true">
         </activity>
 
