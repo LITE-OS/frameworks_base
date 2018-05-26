@@ -1382,4 +1382,22 @@ interface ITelephony {
      * @hide
      */
     SignalStrength getSignalStrength(int subId);
+
+    /**
+     * Get ATR (Answer To Reset; as per ISO/IEC 7816-4) from SIM card
+     */
+    byte[] getAtr();
+
+    /**
+     * Get ATR (Answer To Reset; as per ISO/IEC 7816-4) from SIM card
+     * for a particular subId.
+     */
+    byte[] getAtrUsingSubId(int subId);
+
+    /**
+     * ToggE_GSM, NT_MODE_WCDMA_PREF)
+     * @param boolean to turn on and off 2G
+     * @hide
+     */
+     void toggle2G(boolean on);
 }

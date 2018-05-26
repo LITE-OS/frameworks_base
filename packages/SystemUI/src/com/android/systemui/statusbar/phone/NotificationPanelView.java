@@ -250,6 +250,7 @@ public class NotificationPanelView extends PanelView implements
     // cardinal additions start
     private LockPatternUtils mLockPatternUtils;
     private boolean mQsSecureExpandDisabled;
+    private boolean mIsLockscreenDoubleTapEnabled;
     private int mStatusBarHeaderHeight;
     private GestureDetector mDoubleTapGesture;
 
@@ -867,6 +868,13 @@ public class NotificationPanelView extends PanelView implements
             }
         }
 
+        if ((mIsLockscreenDoubleTapEnabled
+                && mStatusBarState == StatusBarState.KEYGUARD) ||
+                (!mQsExpanded && mDoubleTapToSleepEnabled
+                && event.getY() < mStatusBarHeaderHeight)) {
+            mDoubleTapGesture.onTouchEvent(event);
+         }
+
         initDownStates(event);
         if (mListenForHeadsUp && !mHeadsUpTouchHelper.isTrackingHeadsUp()
                 && mHeadsUpTouchHelper.onInterceptTouchEvent(event)) {
@@ -895,6 +903,10 @@ public class NotificationPanelView extends PanelView implements
         }
         handled |= super.onTouchEvent(event);
         return mDozing ? handled : true;
+    }
+
+    public void setLockscreenDoubleTapToSleep(boolean isDoubleTapEnabled) {
+        mIsLockscreenDoubleTapEnabled = isDoubleTapEnabled;
     }
 
     private boolean handleQsTouch(MotionEvent event) {
@@ -1752,10 +1764,10 @@ public class NotificationPanelView extends PanelView implements
         mKeyguardBottomArea.setImportantForAccessibility(alpha == 0f
                 ? IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
                 : IMPORTANT_FOR_ACCESSIBILITY_AUTO);
-        View ambientIndicationContainer = mStatusBar.getAmbientIndicationContainer();
+        /*View ambientIndicationContainer = mStatusBar.getAmbientIndicationContainer();
         if (ambientIndicationContainer != null) {
             ambientIndicationContainer.setAlpha(alpha);
-        }
+        }*/
     }
 
     private float getNotificationsTopY() {
@@ -2666,6 +2678,10 @@ public class NotificationPanelView extends PanelView implements
 
     public void setPulsing(boolean pulsing) {
         mKeyguardStatusView.setPulsing(pulsing);
+    }
+
+    public void setCleanLayout(int reason) {
+        mKeyguardStatusView.setCleanLayout(reason);
     }
 
     public void setAmbientIndicationBottomPadding(int ambientIndicationBottomPadding) {

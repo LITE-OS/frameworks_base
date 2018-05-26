@@ -132,10 +132,10 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
 
         @Override
         public void onChange(boolean selfChange, Uri uri) {
-                ((Clock)mClock).updateSettings();
-                ((Clock)mLeftClock).updateSettings();
-                ((Clock)mCenterClock).updateSettings();
             updateSettings(true);
+            ((Clock)mClock).updateSettings();
+            ((Clock)mLeftClock).updateSettings();
+            ((Clock)mCenterClock).updateSettings();
             mStatusBarComponent.updateQsbhClock();
             mStatusBarComponent.updateBatterySettings();
         }
@@ -190,6 +190,7 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
         // initTickerView() already called above from updateSettings(false)
         ((Clock)mClock).updateSettings();
         ((Clock)mLeftClock).updateSettings();
+        ((Clock)mCenterClock).updateSettings();
         // Default to showing until we know otherwise.
         showSystemIconArea(false);
         initEmergencyCryptkeeperText();

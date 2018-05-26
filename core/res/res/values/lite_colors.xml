@@ -47,4 +47,7 @@
     <!-- tooltip dark text color -->
     <color name="tooltip_text_dark">@color/foreground_material_dark</color>
 
+    <!-- Updater snackbar text color -->
+    <color name="updater_snackbar_text_color">@android:color/white</color> 
+
 </resources>
