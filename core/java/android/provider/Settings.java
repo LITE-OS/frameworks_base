@@ -4460,6 +4460,13 @@ public final class Settings {
          * @hide
          */
         public static final String SYSTEM_THEME_CURRENT_OVERLAY = "system_theme_current_overlay";
+        
+        /**
+         * Select various accents to go along with system themes
+         *
+         * @hide
+         */
+        public static final String ACCENT_PICKER = "accent_picker";
 
         /**
          * Allow all rotations.
