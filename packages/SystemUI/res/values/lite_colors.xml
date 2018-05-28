@@ -56,4 +56,7 @@
     <color name="screen_pinning_positive_text_color">@android:color/white</color>
     <color name="screen_pinning_negative_text_color">@android:color/white</color>
 
+    <!-- Zen QS panel -->
+    <color name="zen_qs_panel_close_button_color">@android:color/white</color>
+
 </resources>
