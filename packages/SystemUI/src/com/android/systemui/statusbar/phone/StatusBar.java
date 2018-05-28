@@ -279,8 +279,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
-import com.android.systemui.custom.Themes;
-
 public class StatusBar extends SystemUI implements DemoMode,
         DragDownHelper.DragDownCallback, ActivityStarter, OnUnlockMethodChangedListener,
         OnHeadsUpChangedListener, VisualStabilityManager.Callback, CommandQueue.Callbacks,
