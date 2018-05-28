@@ -4694,6 +4694,12 @@ public final class Settings {
         public static final String FP_QUICK_PULLDOWN_QS = "fp_quick_pulldown_qs";
 
         /**
+         * Wheter to dismiss notifications on fingerprint left and right swipe action
+         * @hide
+         */
+        public static final String FP_SWIPE_TO_DISMISS_NOTIFICATIONS = "fp_swipe_to_dismiss_notifications";
+
+        /**
          * Settings to backup. This is here so that it's in the same place as the settings
          * keys and easy to update.
          *
