@@ -4688,6 +4688,12 @@ public final class Settings {
                 "double_tap_sleep_lockscreen";
 
         /**
+         * Whether or not to allow quick settings expansion with one swipe on the fingerprint sensor.
+         * @hide
+         */
+        public static final String FP_QUICK_PULLDOWN_QS = "fp_quick_pulldown_qs";
+
+        /**
          * Settings to backup. This is here so that it's in the same place as the settings
          * keys and easy to update.
          *

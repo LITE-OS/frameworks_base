@@ -499,6 +499,7 @@ public class StatusBar extends SystemUI implements DemoMode,
     private ArrayList<String> mBlacklist = new ArrayList<String>();
     private ArrayList<String> mWhitelist = new ArrayList<String>();
 
+    private boolean mFpQuickPulldownQs;
 
     // the tracker view
     int mTrackingPosition; // the position of the top of the tracking view.
@@ -3215,8 +3216,13 @@ public class StatusBar extends SystemUI implements DemoMode,
         } else if (KeyEvent.KEYCODE_SYSTEM_NAVIGATION_DOWN == key) {
             mMetricsLogger.action(MetricsEvent.ACTION_SYSTEM_NAVIGATION_KEY_DOWN);
             if (mNotificationPanel.isFullyCollapsed()) {
-                mNotificationPanel.expand(true /* animate */);
-                mMetricsLogger.count(NotificationPanelView.COUNTER_PANEL_OPEN, 1);
+                if (mFpQuickPulldownQs) {
+                    mNotificationPanel.expandWithQs();
+                    mMetricsLogger.count(NotificationPanelView.COUNTER_PANEL_OPEN_QS, 1);
+                } else {
+                    mNotificationPanel.expand(true /* animate */);
+                    mMetricsLogger.count(NotificationPanelView.COUNTER_PANEL_OPEN, 1);
+                }
             } else if (!mNotificationPanel.isInSettings() && !mNotificationPanel.isExpanding()){
                 mNotificationPanel.flingSettings(0 /* velocity */, true /* expand */);
                 mMetricsLogger.count(NotificationPanelView.COUNTER_PANEL_OPEN_QS, 1);
@@ -6374,7 +6380,10 @@ public class StatusBar extends SystemUI implements DemoMode,
                     false, this, UserHandle.USER_ALL);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.ACCENT_PICKER),
-                    false, this, UserHandle.USER_ALL);        
+                    false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.Secure.getUriFor(
+                    Settings.Secure.FP_QUICK_PULLDOWN_QS),
+                    false, this, UserHandle.USER_ALL);
         }
 
         @Override
@@ -6433,6 +6442,9 @@ public class StatusBar extends SystemUI implements DemoMode,
             } else if (uri.equals(Settings.System.getUriFor(
                     Settings.System.DOUBLE_TAP_SLEEP_LOCKSCREEN))) {
                 setStatusBarWindowViewOptions();
+            } else if (uri.equals(Settings.Secure.getUriFor(
+                    Settings.Secure.FP_QUICK_PULLDOWN_QS))) {
+                setFpToQuickPulldownQs();
             }
         }
 
@@ -6447,6 +6459,7 @@ public class StatusBar extends SystemUI implements DemoMode,
             updateTickerAnimation();
             setForceAmbient();
             setStatusBarWindowViewOptions();
+            setFpToQuickPulldownQs();
         }
     }
 
@@ -6541,6 +6554,12 @@ public class StatusBar extends SystemUI implements DemoMode,
         if (mStatusBarWindow != null) {
             mStatusBarWindow.setStatusBarWindowViewOptions();
         }
+    }
+
+    private void setFpToQuickPulldownQs() {
+        mFpQuickPulldownQs = Settings.Secure.getIntForUser(mContext.getContentResolver(),
+                Settings.Secure.FP_QUICK_PULLDOWN_QS, 0,
+                UserHandle.USER_CURRENT) == 1;
     }
 
     private RemoteViews.OnClickHandler mOnClickHandler = new RemoteViews.OnClickHandler() {
