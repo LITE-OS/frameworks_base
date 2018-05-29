@@ -4688,18 +4688,6 @@ public final class Settings {
                 "double_tap_sleep_lockscreen";
 
         /**
-         * Whether or not to allow quick settings expansion with one swipe on the fingerprint sensor.
-         * @hide
-         */
-        public static final String FP_QUICK_PULLDOWN_QS = "fp_quick_pulldown_qs";
-
-        /**
-         * Wheter to dismiss notifications on fingerprint left and right swipe action
-         * @hide
-         */
-        public static final String FP_SWIPE_TO_DISMISS_NOTIFICATIONS = "fp_swipe_to_dismiss_notifications";
-
-        /**
          * Hold current font name and name of the originating package Uses "|" as a delimiter
          *
          * @hide
@@ -7986,6 +7974,18 @@ public final class Settings {
          */
         public static final String SYSTEM_NAVIGATION_KEYS_ENABLED =
                 "system_navigation_keys_enabled";
+
+        /**
+         * Whether or not to allow quick settings expansion with one swipe on the fingerprint sensor.
+         * @hide
+         */
+        public static final String FP_QUICK_PULLDOWN_QS = "fp_quick_pulldown_qs";
+
+        /**
+         * Wheter to dismiss notifications on fingerprint left and right swipe action
+         * @hide
+         */
+        public static final String FP_SWIPE_TO_DISMISS_NOTIFICATIONS = "fp_swipe_to_dismiss_notifications";
 
         /**
          * Holds comma separated list of ordering of QS tiles.
