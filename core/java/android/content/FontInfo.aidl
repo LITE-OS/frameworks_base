@@ -1,7 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
 /**
- * Copyright (c) 2017, The Android Open Source Project
+ * Copyright (c) 2010, The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
--->
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
-    <string name="sysui_overlay_dark">Dark</string>
+package android.content;
 
-</resources>
-
+parcelable FontInfo;
