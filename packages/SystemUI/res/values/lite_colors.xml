@@ -59,4 +59,9 @@
     <!-- Zen QS panel -->
     <color name="zen_qs_panel_close_button_color">@android:color/white</color>
 
+    <!-- QSPanel Tiles Colors -->
+    <color name="qs_tiles_inactive_color">#595959</color>
+    <color name="qs_tiles_unavailable_color">#706f6f</color>
+    <color name="qs_tiles_circle_inactive">#dbdbdb</color>
+
 </resources>

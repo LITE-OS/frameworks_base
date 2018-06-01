@@ -37,7 +37,7 @@ import android.support.annotation.VisibleForTesting;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.View.OnClickListener;
-//import android.view.View.OnLongClickListener;
+import android.view.View.OnLongClickListener;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -105,6 +105,7 @@ public class QSFooterImpl extends FrameLayout implements QSFooter,
     private boolean mKeyguardShowing;
     private TouchAnimator mAlarmAnimator;
     protected Vibrator mVibrator;
+    private TouchAnimator mDateTimeAnimator;
 
     public QSFooterImpl(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -158,7 +159,7 @@ public class QSFooterImpl extends FrameLayout implements QSFooter,
         int defSpace = mContext.getResources().getDimensionPixelOffset(R.dimen.default_gear_space);
 
         mAnimator = new Builder()
-                .addFloat(mSettingsButton, "translationX", -(remaining - defSpace), 0)
+                .addFloat(mSettingsButton, "alpha", 0, 1)
                 .addFloat(mSettingsButton, "rotation", -120, 0)
                 .build();
         if (mAlarmShowing) {
@@ -206,7 +207,6 @@ public class QSFooterImpl extends FrameLayout implements QSFooter,
 
     private void updateResources() {
         FontSizeUtils.updateFontSize(mAlarmStatus, R.dimen.qs_date_collapsed_size);
-
         updateSettingsAnimator();
     }
 
@@ -232,6 +232,8 @@ public class QSFooterImpl extends FrameLayout implements QSFooter,
     private TouchAnimator createSettingsAlphaAnimator() {
         return new TouchAnimator.Builder()
                 .addFloat(mEdit, "alpha", 0, 1)
+                .addFloat(mDateTimeGroup, "alpha", 0, 1)
+                .addFloat(mDate, "alpha", 0, 1)
                 .addFloat(mMultiUserSwitch, "alpha", 0, 1)
                 .build();
     }
@@ -375,7 +377,7 @@ public class QSFooterImpl extends FrameLayout implements QSFooter,
         }
     }
 
-/*    @Override
+    /*@Override
     public boolean onLongClick(View v) {
         if (v == mSettingsButton) {
             startSettingsLongClickActivity();
@@ -388,8 +390,8 @@ public class QSFooterImpl extends FrameLayout implements QSFooter,
         }
         vibrateFooter(20);
         return false;
-    }
-*/
+    }*/
+
     private void startSettingsActivity() {
         mActivityStarter.startActivity(new Intent(android.provider.Settings.ACTION_SETTINGS),
                 true /* dismissShade */);
