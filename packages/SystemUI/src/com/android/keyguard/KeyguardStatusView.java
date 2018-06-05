@@ -44,7 +44,6 @@ import android.widget.TextView;
 import com.android.internal.util.ArrayUtils;
 import com.android.internal.widget.LockPatternUtils;
 //import com.android.systemui.ChargingView;
-import com.android.systemui.doze.DozeLog;
 import com.android.systemui.statusbar.policy.DateView;
 
 import java.util.Locale;
@@ -74,8 +73,6 @@ public class KeyguardStatusView extends GridLayout {
     private int mTextColor;
     private int mDateTextColor;
     private int mAlarmTextColor;
-
-    private boolean mForcedMediaDoze;
 
     private KeyguardUpdateMonitorCallback mInfoCallback = new KeyguardUpdateMonitorCallback() {
 
@@ -330,7 +327,7 @@ public class KeyguardStatusView extends GridLayout {
         final int N = mClockContainer.getChildCount();
         for (int i = 0; i < N; i++) {
             View child = mClockContainer.getChildAt(i);
-            if (!mForcedMediaDoze && ArrayUtils.contains(mVisibleInDoze, child)) {
+            if (ArrayUtils.contains(mVisibleInDoze, child)) {
                 continue;
             }
             child.setAlpha(dark ? 0 : 1);
@@ -350,21 +347,12 @@ public class KeyguardStatusView extends GridLayout {
 
     public void setPulsing(boolean pulsing) {
         mPulsing = pulsing;
-    }
-
-    public void setCleanLayout(int reason) {
-        mForcedMediaDoze =
-                reason == DozeLog.PULSE_REASON_FORCED_MEDIA_NOTIFICATION;
         updateDozeVisibleViews();
     }
 
     private void updateDozeVisibleViews() {
         for (View child : mVisibleInDoze) {
-            if (!mForcedMediaDoze) {
-                child.setAlpha(mDarkAmount == 1 && mPulsing ? 0.8f : 1);
-            } else {
-                child.setAlpha(mDarkAmount == 1 ? 0 : 1);
-            }
+            child.setAlpha(mDarkAmount == 1 && mPulsing ? 0.8f : 1);
         }
     }
 }

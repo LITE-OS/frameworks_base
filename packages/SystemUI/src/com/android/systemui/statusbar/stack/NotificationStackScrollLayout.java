@@ -1312,9 +1312,9 @@ public class NotificationStackScrollLayout extends ViewGroup
         initView(getContext());
     }
 
-    public void dismissViewAnimated(View child, Runnable endRunnable, int delay, long duration, boolean forceToLeft) {
+    public void dismissViewAnimated(View child, Runnable endRunnable, int delay, long duration) {
         mSwipeHelper.dismissChild(child, 0, endRunnable, delay, true, duration,
-                true /* isDismissAll */, forceToLeft);
+                true /* isDismissAll */);
     }
 
     public void snapViewIfNeeded(ExpandableNotificationRow child) {
