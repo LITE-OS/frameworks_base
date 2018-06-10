@@ -51,5 +51,6 @@
     <dimen name="status_bar_left_clock_end_padding">5dp</dimen>
 
     <!-- QS detail view -->
-    <dimen name="qs_panel_top_margin">56dp</dimen>
+    <dimen name="qs_panel_top_margin">40dp</dimen>
+
 </resources>
