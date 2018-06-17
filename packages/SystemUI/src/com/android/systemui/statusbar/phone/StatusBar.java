@@ -156,6 +156,7 @@ import com.android.internal.messages.nano.SystemMessageProto.SystemMessage;
 import com.android.internal.statusbar.IStatusBarService;
 import com.android.internal.statusbar.NotificationVisibility;
 import com.android.internal.statusbar.StatusBarIcon;
+import com.android.internal.statusbar.ThemeAccentUtils;
 import com.android.internal.util.NotificationMessagingUtil;
 import com.android.internal.util.custom.CustomUtils;
 import com.android.internal.widget.LockPatternUtils;
@@ -233,7 +234,6 @@ import com.android.systemui.statusbar.notification.InflationException;
 import com.android.systemui.statusbar.notification.RowInflaterTask;
 import com.android.systemui.statusbar.notification.VisualStabilityManager;
 import com.android.systemui.statusbar.phone.UnlockMethodCache.OnUnlockMethodChangedListener;
-import com.android.systemui.statusbar.phone.ThemeAccentUtils;
 import com.android.systemui.statusbar.phone.Ticker;
 import com.android.systemui.statusbar.phone.TickerView;
 import com.android.systemui.statusbar.policy.BatteryController;
@@ -5122,16 +5122,28 @@ public class StatusBar extends SystemUI implements DemoMode,
         }, 1000);
     }
 
-// Switches theme accent from to another or back to stock
+    // Switches theme accent from one to another or back to stock
     public void updateAccents() {
         int accentSetting = Settings.System.getIntForUser(mContext.getContentResolver(),
                 Settings.System.ACCENT_PICKER, 0, mCurrentUserId);
         ThemeAccentUtils.updateAccents(mOverlayManager, mCurrentUserId, accentSetting);
     }
 
-// Unload all the theme accents
+    // Unload all the theme accents overlays
     public void unloadAccents() {
         ThemeAccentUtils.unloadAccents(mOverlayManager, mCurrentUserId);
+    }
+
+    // Switches the analog clock from one to another or back to stock
+    public void updateClocks() {
+        int clockSetting = Settings.System.getIntForUser(mContext.getContentResolver(),
+                Settings.System.LOCKSCREEN_CLOCK_SELECTION, 0, mCurrentUserId);
+        ThemeAccentUtils.updateClocks(mOverlayManager, mCurrentUserId, clockSetting, mContext);
+    }
+
+    // Unload all the analog overlays
+    public void unloadClocks() {
+        ThemeAccentUtils.unloadClocks(mOverlayManager, mCurrentUserId, mContext);
     }
 
     private void updateDozingState() {
@@ -6333,6 +6345,21 @@ public class StatusBar extends SystemUI implements DemoMode,
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.ACCENT_PICKER),
                     false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.HIDE_LOCKSCREEN_ALARM),
+                    false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.HIDE_LOCKSCREEN_CLOCK),
+                    false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.HIDE_LOCKSCREEN_DATE),
+                    false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.LOCKSCREEN_CLOCK_SELECTION),
+                    false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.LOCKSCREEN_DATE_SELECTION),
+                    false, this, UserHandle.USER_ALL);
         }
 
         @Override
@@ -6388,6 +6415,16 @@ public class StatusBar extends SystemUI implements DemoMode,
             } else if (uri.equals(Settings.System.getUriFor(
                     Settings.System.DOUBLE_TAP_SLEEP_LOCKSCREEN))) {
                 setStatusBarWindowViewOptions();
+            } else if (uri.equals(Settings.System.getUriFor(Settings.System.HIDE_LOCKSCREEN_ALARM)) ||
+                    uri.equals(Settings.System.getUriFor(Settings.System.HIDE_LOCKSCREEN_CLOCK)) ||
+                    uri.equals(Settings.System.getUriFor(Settings.System.HIDE_LOCKSCREEN_DATE)) ||
+                    uri.equals(Settings.System.getUriFor(Settings.System.LOCKSCREEN_DATE_SELECTION))) {
+                updateKeyguardStatusSettings();
+            } else if (uri.equals(Settings.System.getUriFor(
+                    Settings.System.LOCKSCREEN_CLOCK_SELECTION))) {
+                unloadClocks();
+                updateClocks();
+                updateKeyguardStatusSettings();
             }
         }
 
@@ -6401,7 +6438,12 @@ public class StatusBar extends SystemUI implements DemoMode,
             updateBatterySettings();
             updateTickerAnimation();
             setStatusBarWindowViewOptions();
+            updateKeyguardStatusSettings();
         }
+    }
+
+    private void updateKeyguardStatusSettings() {
+        mNotificationPanel.updateKeyguardStatusSettings();
     }
 
     // Called from CollapsedStatusBarFragment observer

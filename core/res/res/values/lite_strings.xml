@@ -16,6 +16,11 @@
 -->
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
+    <string name="custom_clock_styles" translatable="false">
+        digital,digital_bold,sammy,sammy_bold,analog
+    </string>
+
     <!-- Assist manager -->
     <string name="no_assist_found">No assist manager found</string>
 
