@@ -69,5 +69,12 @@
     <color name="theme_text1">@color/black</color>
     <color name="theme_text2">@color/black</color>
     <color name="theme_text3">@color/black</color>
-    
+    <color name="dot_qs_active">#ffffff</color>
+    <color name="dot_qs_inactive">#595959</color>
+    <color name="dot_qs_unavailable">#706f6f</color>
+    <color name="dot_qs_circle_active">?android:attr/colorAccent</color>
+    <color name="dot_qs_circle_inactive">#dbdbdb</color>
+
+    <!-- Two target preference vertical divider color -->
+    <color name="list_divider_dark">#64000000</color>
 </resources>

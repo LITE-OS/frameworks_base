@@ -67,7 +67,6 @@ public class ThemeAccentUtils {
         "com.android.system.theme.black", // 0
         "com.android.settings.theme.black", // 1
         "com.android.systemui.theme.black", // 2
-        "com.google.messaging.theme.black", //3
     };
 
     private static final String STOCK_DARK_THEME = "com.android.systemui.stock.theme.dark";

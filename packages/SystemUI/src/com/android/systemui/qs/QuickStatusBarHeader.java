@@ -15,27 +15,33 @@
 package com.android.systemui.qs;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.provider.AlarmClock;
 import android.support.annotation.VisibleForTesting;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextClock;
+import android.widget.TextView;
 
+import com.android.keyguard.CarrierText;
 import com.android.settingslib.Utils;
-import com.android.systemui.BatteryMeterView;
+import com.android.systemui.qs.BatteryMeterView;
 import com.android.systemui.Dependency;
 import com.android.systemui.R;
 import com.android.systemui.R.id;
 import com.android.systemui.plugins.ActivityStarter;
 import com.android.systemui.qs.QSDetail.Callback;
+import com.android.systemui.qs.TouchAnimator.Builder;
+import com.android.systemui.qs.TouchAnimator.Listener;
+import com.android.systemui.qs.TouchAnimator.ListenerAdapter;
 import com.android.systemui.statusbar.SignalClusterView;
 import com.android.systemui.statusbar.policy.Clock;
 import com.android.systemui.statusbar.policy.DarkIconDispatcher.DarkReceiver;
-
 
 public class QuickStatusBarHeader extends RelativeLayout {
 
@@ -54,6 +60,8 @@ public class QuickStatusBarHeader extends RelativeLayout {
     private Clock mClock;
     private Clock mLeftClock;
 
+	private View mDate;
+
     public QuickStatusBarHeader(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
@@ -71,13 +79,9 @@ public class QuickStatusBarHeader extends RelativeLayout {
         updateResources();
 
         // Set the light/dark theming on the header status UI to match the current theme.
-        int colorForeground = Utils.getColorAttr(getContext(), android.R.attr.colorForeground);
+        int colorForeground = Color.parseColor("#ffffff");
         float intensity = colorForeground == Color.WHITE ? 0 : 1;
         Rect tintArea = new Rect(0, 0, 0, 0);
-
-        applyDarkness(R.id.battery, tintArea, intensity, colorForeground);
-        applyDarkness(R.id.clock, tintArea, intensity, colorForeground);
-
         mBatteryView = findViewById(R.id.battery);
         mBatteryView.setIsQuickSbHeaderOrKeyguard(true);
 
@@ -85,8 +89,22 @@ public class QuickStatusBarHeader extends RelativeLayout {
         ((Clock)mClock).setIsQshb(true);
         mLeftClock = findViewById(R.id.left_clock);
         ((Clock)mLeftClock).setIsQshb(true);
-
+		
+        mDate = findViewById(R.id.date);
+		
         mActivityStarter = Dependency.get(ActivityStarter.class);
+		
+		mDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+			    mActivityStarter.postStartActivityDismissingKeyguard(new Intent(
+                        AlarmClock.ACTION_SHOW_ALARMS), 0);
+			}
+        });
+	    applyDarkness(R.id.battery, tintArea, intensity, colorForeground);
+        applyDarkness(R.id.clock, tintArea, intensity, colorForeground);
+		applyDarkness(R.id.left_clock, tintArea, intensity, colorForeground);
+		applyDarkness(R.id.date, tintArea, intensity, colorForeground);
     }
 
     public void updateBatterySettings() {
@@ -138,7 +156,6 @@ public class QuickStatusBarHeader extends RelativeLayout {
         if (mExpanded == expanded) return;
         mExpanded = expanded;
         mHeaderQsPanel.setExpanded(expanded);
-        updateEverything();
     }
 
     public void setExpansion(float headerExpansionFraction) {

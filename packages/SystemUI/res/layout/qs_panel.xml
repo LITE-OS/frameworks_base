@@ -18,21 +18,19 @@
     android:id="@+id/quick_settings_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/qs_background_primary"
     android:elevation="4dp"
     android:clipToPadding="false"
     android:clipChildren="false">
 
     <com.android.systemui.qs.QSPanel
         android:id="@+id/quick_settings_panel"
-        android:layout_marginTop="28dp"
+        android:layout_marginTop="@dimen/qs_panel_top_margin"
+		android:layout_marginStart="8dp"
+		android:layout_marginEnd="8dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="48dp" />
+        android:layout_height="wrap_content" />
 
     <include layout="@layout/quick_status_bar_expanded_header" />
-
-    <include layout="@layout/qs_footer_impl" />
 
     <include android:id="@+id/qs_detail" layout="@layout/qs_detail" />
 
