@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2018 The LiteOS
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+         http://www.apache.org/licenses/LICENSE-2.0
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<vector xmlns:api24="http://schemas.android.com/apk/res/android" xmlns:android="http://schemas.android.com/apk/res/android"
+    android:name="vector"
+    android:width="150.000000dp"
+    android:height="150.000000dp"
+    android:viewportWidth="500"
+    android:viewportHeight="500">
+    <path
+        android:pathData="M246.66575 247.24338l-1.53378 -6.05551 0 -103.57643 0 -103.57642 1.84073 -6.52005c1.27188 -4.505119 2.25106 -6.520047 3.16853 -6.520047 0.91748 0 1.89667 2.014928 3.16854 6.520047l1.84073 6.52005 0 103.57642 0 103.57643 -1.53378 6.05551c-1.29273 5.10382 -1.83893 6.0555 -3.47549 6.0555 -1.63654 0 -2.18275 -0.95168 -3.47548 -6.0555z"
+        android:fillColor="#000000" />
+</vector>
