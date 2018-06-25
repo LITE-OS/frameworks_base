@@ -56,8 +56,8 @@
                 android:layout_alignParentTop="true"
                 style="@style/widget_big_thin"
                 android:layout_marginBottom="@dimen/bottom_text_spacing_digital" />
-			<DotAnalogClock
-                android:id="@+id/dot_clock_view"
+            <LiteAnalogClock
+                android:id="@+id/lite_clock_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"

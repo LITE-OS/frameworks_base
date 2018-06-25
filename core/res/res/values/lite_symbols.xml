@@ -16,6 +16,12 @@
 -->
 <resources>
 
+  <!-- LiteOS Analog clock -->
+  <java-symbol type="drawable" name="lite_clock_dial" />
+  <java-symbol type="drawable" name="lite_clock_dial_ambient" />
+  <java-symbol type="drawable" name="lite_clock_hand_hour" />
+  <java-symbol type="drawable" name="lite_clock_hand_minute" />
+
   <!-- Custom Analog clock -->
   <java-symbol type="drawable" name="custom_clock_dial" />
   <java-symbol type="drawable" name="custom_clock_dial_ambient" />
@@ -25,12 +31,6 @@
   <java-symbol type="color" name="analog_clock_face_color" />
   <java-symbol type="color" name="analog_clock_hand_hour_color" />
   <java-symbol type="color" name="analog_clock_hand_minute_color" />
-
-  <!-- DotOS Analog clock -->
-  <java-symbol type="drawable" name="dot_clock_dial" />
-  <java-symbol type="drawable" name="dot_clock_dial_ambient" />
-  <java-symbol type="drawable" name="dot_clock_hand_hour" />
-  <java-symbol type="drawable" name="dot_clock_hand_minute" />
 
   <!-- Package Manager -->
   <java-symbol type="array" name="config_disabledComponents" />

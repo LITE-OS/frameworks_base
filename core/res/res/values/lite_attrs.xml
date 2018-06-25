@@ -26,13 +26,16 @@
         <attr name="custom_dial" format="reference"/>
         <attr name="custom_hand_hour" format="reference"/>
         <attr name="custom_hand_minute" format="reference"/>
+        <attr name="lite_dial" format="reference"/>
+        <attr name="lite_hand_hour" format="reference"/>
+        <attr name="lite_hand_minute" format="reference"/>
     </declare-styleable>
 
-    <!-- DotOS Analog clock -->
-    <declare-styleable name="DotAnalogClock">
-        <attr name="dot_dial" format="reference"/>
-        <attr name="dot_hand_hour" format="reference"/>
-        <attr name="dot_hand_minute" format="reference"/>
+    <!-- LiteOS Analog clock -->
+    <declare-styleable name="LiteAnalogClock">
+        <attr name="lite_dial" format="reference"/>
+        <attr name="lite_hand_hour" format="reference"/>
+        <attr name="lite_hand_minute" format="reference"/>
     </declare-styleable>
 
 </resources>

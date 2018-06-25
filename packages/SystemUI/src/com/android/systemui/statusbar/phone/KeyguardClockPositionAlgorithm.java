@@ -184,7 +184,7 @@ public class KeyguardClockPositionAlgorithm {
     }
 
     public void setClockSelection(int style) {
-        mIsBigClock = style > 1;
+        mIsBigClock = style == 3;
     }
 
     private float burnInPreventionOffsetY() {

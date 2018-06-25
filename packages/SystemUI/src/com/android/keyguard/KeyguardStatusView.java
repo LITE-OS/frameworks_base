@@ -41,8 +41,8 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CustomAnalogClock;
-import android.widget.DotAnalogClock;
 import android.widget.GridLayout;
+import android.widget.LiteAnalogClock;
 import android.widget.RelativeLayout;
 import android.widget.TextClock;
 import android.widget.TextView;
@@ -66,7 +66,7 @@ public class KeyguardStatusView extends GridLayout {
     private TextView mAlarmStatusView;
     private DateView mDateView;
     private CustomAnalogClock mAnalogClockView;
-    private DotAnalogClock mDotClockView;	
+    private LiteAnalogClock mLiteClockView;
     private TextClock mClockView;
     private TextView mOwnerInfo;
     private ViewGroup mClockContainer;
@@ -171,13 +171,13 @@ public class KeyguardStatusView extends GridLayout {
         mAlarmStatusView = findViewById(R.id.alarm_status);
         mDateView = findViewById(R.id.date_view);
         mAnalogClockView = findViewById(R.id.analog_clock_view);
-        mDotClockView = findViewById(R.id.dot_clock_view);
+        mLiteClockView = findViewById(R.id.lite_clock_view);
         mClockView = findViewById(R.id.clock_view);
         mClockView.setShowCurrentUserTime(true);
         mOwnerInfo = findViewById(R.id.owner_info);
         //mBatteryDoze = findViewById(R.id.battery_doze);
         mKeyguardStatusArea = findViewById(R.id.keyguard_status_area);
-        mVisibleInDoze = new View[]{/*mBatteryDoze, */mClockView, mAnalogClockView, mDotClockView, mKeyguardStatusArea};
+        mVisibleInDoze = new View[]{/*mBatteryDoze, */mClockView, mAnalogClockView, mLiteClockView, mKeyguardStatusArea};
         mTextColor = mClockView.getCurrentTextColor();
         mDateTextColor = mDateView.getCurrentTextColor();
         mAlarmTextColor = mAlarmStatusView.getCurrentTextColor();
@@ -211,11 +211,11 @@ public class KeyguardStatusView extends GridLayout {
                 R.dimen.bottom_text_spacing_digital);
         mAnalogClockView.setLayoutParams(customlayoutParams);
 
-		// DotOS analog clock
-        MarginLayoutParams dotlayoutParams = (MarginLayoutParams) mDotClockView.getLayoutParams();
-        dotlayoutParams.bottomMargin = getResources().getDimensionPixelSize(
+        // LiteOS analog clock
+        MarginLayoutParams litelayoutParams = (MarginLayoutParams) mLiteClockView.getLayoutParams();
+        litelayoutParams.bottomMargin = getResources().getDimensionPixelSize(
                 R.dimen.bottom_text_spacing_digital);
-        mDotClockView.setLayoutParams(dotlayoutParams);
+        mLiteClockView.setLayoutParams(litelayoutParams);
 
         // DateView
         mDateView.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimensionPixelSize(
@@ -245,7 +245,7 @@ public class KeyguardStatusView extends GridLayout {
         } else if (mClockSelection == 1) {
             mClockView.setFormat12Hour(Html.fromHtml("<strong>h</strong>mm"));
             mClockView.setFormat24Hour(Html.fromHtml("<strong>kk</strong>mm"));
-        } else if (mClockSelection == 3) {
+        } else if (mClockSelection == 5) {
             mClockView.setFormat12Hour(Html.fromHtml("<strong>hh</strong><br>mm"));
             mClockView.setFormat24Hour(Html.fromHtml("<strong>kk</strong><br>mm"));
         } else {
@@ -350,30 +350,30 @@ public class KeyguardStatusView extends GridLayout {
             case 0: // default digital
                 mClockView.setVisibility(mDarkAmount != 1 ? (mShowClock ? View.VISIBLE : View.GONE) : View.VISIBLE);
                 mAnalogClockView.setVisibility(View.GONE);
-                mDotClockView.setVisibility(View.GONE);
+                mLiteClockView.setVisibility(View.GONE);
                 break;
             case 1: // digital (bold)
                 mClockView.setVisibility(mDarkAmount != 1 ? (mShowClock ? View.VISIBLE : View.GONE) : View.VISIBLE);
                 mAnalogClockView.setVisibility(View.GONE);
-                mDotClockView.setVisibility(View.GONE);
+                mLiteClockView.setVisibility(View.GONE);
                 break;
             case 2: // sammy
                 mClockView.setVisibility(mDarkAmount != 1 ? (mShowClock ? View.VISIBLE : View.GONE) : View.VISIBLE);
                 mAnalogClockView.setVisibility(View.GONE);
-                mDotClockView.setVisibility(View.GONE);
+                mLiteClockView.setVisibility(View.GONE);
                 break;
             case 3: // sammy (bold)
                 mClockView.setVisibility(mDarkAmount != 1 ? (mShowClock ? View.VISIBLE : View.GONE) : View.VISIBLE);
                 mAnalogClockView.setVisibility(View.GONE);
-                mDotClockView.setVisibility(View.GONE);
+                mLiteClockView.setVisibility(View.GONE);
                 break;
             case 4: // analog
                 mAnalogClockView.setVisibility(mDarkAmount != 1 ? (mShowClock ? View.VISIBLE : View.GONE) : View.VISIBLE);
                 mClockView.setVisibility(View.GONE);
-                mDotClockView.setVisibility(View.GONE);
+                mLiteClockView.setVisibility(View.GONE);
                 break;
-            case 5: // analog (DotOS)
-                mDotClockView.setVisibility(mDarkAmount != 1 ? (mShowClock ? View.VISIBLE : View.GONE) : View.VISIBLE);
+            case 5: // analog (LiteOS)
+                mLiteClockView.setVisibility(mDarkAmount != 1 ? (mShowClock ? View.VISIBLE : View.GONE) : View.VISIBLE);
                 mAnalogClockView.setVisibility(View.GONE);
                 mClockView.setVisibility(View.GONE);
             default: // custom analog styles (int > 4)
@@ -381,7 +381,6 @@ public class KeyguardStatusView extends GridLayout {
                 mClockView.setVisibility(View.GONE);
                 break;
         }
-
         mDateView.setVisibility(mDarkAmount != 1 ? (mShowDate ? View.VISIBLE : View.GONE) : View.VISIBLE);
 
         mAlarmStatusView.setVisibility(mDarkAmount != 1 ? (mShowAlarm && mAvailableAlarm ? View.VISIBLE : View.GONE)
@@ -409,39 +408,38 @@ public class KeyguardStatusView extends GridLayout {
                 mClockView.setSingleLine(true);
                 mClockView.setGravity(Gravity.CENTER);
                 mAnalogClockView.unregisterReceiver();
-                mDotClockView.unregisterReceiver();
+                mLiteClockView.unregisterReceiver();
                 break;
             case 1: // digital (bold)
                 params.addRule(RelativeLayout.BELOW, R.id.clock_view);
                 mClockView.setSingleLine(true);
                 mClockView.setGravity(Gravity.CENTER);
                 mAnalogClockView.unregisterReceiver();
-                mDotClockView.unregisterReceiver();
+                mLiteClockView.unregisterReceiver();
                 break;
             case 2: // sammy
                 params.addRule(RelativeLayout.BELOW, R.id.clock_view);
                 mClockView.setSingleLine(false);
                 mClockView.setGravity(Gravity.CENTER);
                 mAnalogClockView.unregisterReceiver();
-                mDotClockView.unregisterReceiver();
+                mLiteClockView.unregisterReceiver();
                 break;
             case 3: // sammy (bold)
                 params.addRule(RelativeLayout.BELOW, R.id.clock_view);
                 mClockView.setSingleLine(false);
                 mClockView.setGravity(Gravity.CENTER);
                 mAnalogClockView.unregisterReceiver();
-                mDotClockView.unregisterReceiver();
+                mLiteClockView.unregisterReceiver();
                 break;
             case 4: // analog
                 params.addRule(RelativeLayout.BELOW, R.id.analog_clock_view);
                 mAnalogClockView.registerReceiver();
-                mDotClockView.unregisterReceiver();
+                mLiteClockView.unregisterReceiver();
                 break;
-            case 5: // analog (dotos)
-                params.addRule(RelativeLayout.BELOW, R.id.dot_clock_view);
+            case 5: // analog (LiteOS)
+                params.addRule(RelativeLayout.BELOW, R.id.lite_clock_view);
                 mAnalogClockView.unregisterReceiver();
-                mDotClockView.registerReceiver();
-                break;
+                mLiteClockView.registerReceiver();
             default: // custom analog styles (int > 4)
                 params.addRule(RelativeLayout.BELOW, R.id.analog_clock_view);
                 mAnalogClockView.registerReceiver();
@@ -558,7 +556,7 @@ public class KeyguardStatusView extends GridLayout {
         mAlarmStatusView.setTextColor(blendedAlarmColor);
         mAlarmStatusView.setCompoundDrawableTintList(ColorStateList.valueOf(blendedAlarmColor));
         mAnalogClockView.setDark(dark);
-        mDotClockView.setDark(dark);
+        mLiteClockView.setDark(dark);
         updateVisibilities(); // with updated mDarkAmount value
     }
 
