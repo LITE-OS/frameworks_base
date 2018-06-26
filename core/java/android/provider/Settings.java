@@ -4739,6 +4739,12 @@ public final class Settings {
         public static final String FLASHLIGHT_ON_CALL = "flashlight_on_call";
 
         /**
+         * QS Panel Header ARGB HEX Color
+         * @hide
+         */
+        public static final String QS_HEADER_COLOR = "qs_header_color";
+
+        /**
          * Settings to backup. This is here so that it's in the same place as the settings
          * keys and easy to update.
          *
