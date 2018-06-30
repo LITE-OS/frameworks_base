@@ -15,4 +15,5 @@
 -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android" >
     <solid android:color="?android:attr/colorBackgroundFloating" />
+    <corners android:radius="5.0dip" />
 </shape>
