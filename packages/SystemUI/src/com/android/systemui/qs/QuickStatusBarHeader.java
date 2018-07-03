@@ -65,8 +65,6 @@ public class QuickStatusBarHeader extends RelativeLayout {
     private Clock mLeftClock;
 
 	private View mDate;
-	private View mHeaderView;
-	private String mHeaderColor = "#00FFFFFF";
 
     public QuickStatusBarHeader(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -90,9 +88,6 @@ public class QuickStatusBarHeader extends RelativeLayout {
         Rect tintArea = new Rect(0, 0, 0, 0);
         mBatteryView = findViewById(R.id.battery);
         mBatteryView.setIsQuickSbHeaderOrKeyguard(true);
-		
-		mHeaderView = findViewById(R.id.qs_top_background);
-		updateColor();
 
         mClock = findViewById(R.id.clock);
         ((Clock)mClock).setIsQshb(true);
@@ -114,30 +109,6 @@ public class QuickStatusBarHeader extends RelativeLayout {
         applyDarkness(R.id.clock, tintArea, intensity, colorForeground);
 		applyDarkness(R.id.left_clock, tintArea, intensity, colorForeground);
 		applyDarkness(R.id.date, tintArea, intensity, colorForeground);
-    }
-	
-	private class ColorObserver extends ContentObserver {
-        ColorObserver(Handler handler) {
-            super(handler);
-        }
-
-        void observe() {
-            getContext().getContentResolver().registerContentObserver(Settings.System
-                    .getUriFor(Settings.System.QS_HEADER_COLOR), false,
-                    this, UserHandle.USER_ALL);
-        }
-
-        @Override
-        public void onChange(boolean selfChange) {
-            updateColor();
-        }
-    }
-	
-	private void updateColor() {
-        mHeaderColor = Settings.System.getStringForUser(getContext().getContentResolver(),
-                Settings.System.QS_HEADER_COLOR,
-                UserHandle.USER_CURRENT);
-		mHeaderView.setBackgroundColor(Color.parseColor(mHeaderColor));
     }
 
     public void updateBatterySettings() {

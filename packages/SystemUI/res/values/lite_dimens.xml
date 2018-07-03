@@ -53,4 +53,7 @@
     <!-- QS detail view -->
     <dimen name="qs_panel_top_margin">42dp</dimen>
 
+	<!-- QS Left/Right Margin -->
+	<dimen name="qs_container_margin">4dp</dimen>
+
 </resources>
