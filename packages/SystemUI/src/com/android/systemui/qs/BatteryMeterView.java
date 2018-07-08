@@ -83,6 +83,7 @@ public class BatteryMeterView extends LinearLayout implements
     private int mStyle = BatteryMeterDrawableBase.BATTERY_STYLE_PORTRAIT;
     private int mShowPercentText;
     private boolean mCharging;
+    private boolean mPowerSave;
 
     private final int mEndPadding;
 
@@ -90,7 +91,10 @@ public class BatteryMeterView extends LinearLayout implements
 
     private boolean mAttached;
 
-    private boolean mPowerSave;
+    private boolean mClockEnabled;
+    private int mClockStyle = STYLE_CLOCK_RIGHT;
+    public static final int STYLE_CLOCK_RIGHT = 0;
+    public static final int STYLE_CLOCK_LEFT = 1;
 
     public BatteryMeterView(Context context) {
         this(context, null, 0);
@@ -128,12 +132,12 @@ public class BatteryMeterView extends LinearLayout implements
         mEndPadding = res.getDimensionPixelSize(R.dimen.battery_level_padding_start);
         updateShowPercent();
 
-        Context dualToneDarkTheme = new ContextThemeWrapper(context,
-                Utils.getThemeAttr(context, R.attr.darkIconTheme));
+        //Context dualToneDarkTheme = new ContextThemeWrapper(context,
+        //        Utils.getThemeAttr(context, R.attr.darkIconTheme));
         Context dualToneLightTheme = new ContextThemeWrapper(context,
                 Utils.getThemeAttr(context, R.attr.lightIconTheme));
-        mDarkModeBackgroundColor = Utils.getColorAttr(dualToneDarkTheme, R.attr.backgroundColor);
-        mDarkModeFillColor = Utils.getColorAttr(dualToneDarkTheme, R.attr.fillColor);
+        //mDarkModeBackgroundColor = Utils.getColorAttr(dualToneDarkTheme, R.attr.backgroundColor);
+        //mDarkModeFillColor = Utils.getColorAttr(dualToneDarkTheme, R.attr.fillColor);
         mLightModeBackgroundColor = Utils.getColorAttr(dualToneLightTheme, R.attr.backgroundColor);
         mLightModeFillColor = Utils.getColorAttr(dualToneLightTheme, R.attr.fillColor);
 
@@ -219,6 +223,10 @@ public class BatteryMeterView extends LinearLayout implements
                 || mStyle == BatteryMeterDrawableBase.BATTERY_STYLE_DOTTED_CIRCLE;
     }
 
+    private boolean isRightClock() {
+        return mClockEnabled && mClockStyle == STYLE_CLOCK_RIGHT;
+    }
+
     @Override
     public void onPowerSaveChanged(boolean isPowerSave) {
         mDrawable.setPowerSave(isPowerSave);
@@ -250,8 +258,7 @@ public class BatteryMeterView extends LinearLayout implements
     private void updateShowPercent() {
         final boolean showing = mBatteryPercentView != null;
         if (forcePercentageQsHeader()
-                || (mStyle != BatteryMeterDrawableBase.BATTERY_STYLE_HIDDEN
-                && ((mShowPercentText == 1) || mForceShowPercent))) {
+                || (mStyle != BatteryMeterDrawableBase.BATTERY_STYLE_HIDDEN && ((mShowPercentText == 1) || mForceShowPercent))) {
             if (!showing) {
                 mBatteryPercentView = loadPercentView();
                 if (mTextColor != 0) mBatteryPercentView.setTextColor(mTextColor);
@@ -268,10 +275,13 @@ public class BatteryMeterView extends LinearLayout implements
                 mBatteryPercentView = null;
             }
         }
+
+        // Fix padding dinamically. It's safe to call this here because View.setPadding doesn't call a
+        // requestLayout() if values aren't different from previous ones
         if (mBatteryPercentView != null) {
             mBatteryPercentView.setPaddingRelative(0, 0,
                     (mStyle == BatteryMeterDrawableBase.BATTERY_STYLE_TEXT || isHiddenButQsOrKeyguard())
-	            ? 0 : mEndPadding, 0);
+                    ? (isRightClock() ? mEndPadding : 0) : mEndPadding, 0);
         }
         mDrawable.showPercentInsideCircle(mShowPercentText == 2);
         mDrawable.setShowPercent(mShowPercentText == 2);
@@ -310,10 +320,8 @@ public class BatteryMeterView extends LinearLayout implements
     public void onDarkChanged(Rect area, float darkIntensity, int tint) {
         mDarkIntensity = darkIntensity;
         float intensity = DarkIconDispatcher.isInArea(area, this) ? darkIntensity : 0;
-        int foreground = getColorForDarkIntensity(intensity, mLightModeFillColor,
-                mDarkModeFillColor);
-        int background = getColorForDarkIntensity(intensity, mLightModeBackgroundColor,
-                mDarkModeBackgroundColor);
+        int foreground = getContext().getColor(android.R.color.white);
+        int background = Utils.getDisabled(getContext(), getContext().getColor(android.R.color.white));
         mDrawable.setColors(foreground, background);
         setTextColor(foreground);
     }
@@ -375,9 +383,13 @@ public class BatteryMeterView extends LinearLayout implements
 
     public void updateSettings(boolean fromObserver) {
         mShowPercentText = Settings.System.getIntForUser(mContext.getContentResolver(),
-                SHOW_BATTERY_PERCENT, 0, mUser);
+                SHOW_BATTERY_PERCENT, 1, mUser);
         mStyle = Settings.Secure.getIntForUser(mContext.getContentResolver(),
                 STATUS_BAR_BATTERY_STYLE, BatteryMeterDrawableBase.BATTERY_STYLE_PORTRAIT, mUser);
+        mClockStyle = Settings.System.getIntForUser(mContext.getContentResolver(),
+                Settings.System.STATUSBAR_CLOCK_STYLE, STYLE_CLOCK_RIGHT, mUser);
+        mClockEnabled = Settings.System.getIntForUser(mContext.getContentResolver(),
+                Settings.System.STATUS_BAR_CLOCK, 1, mUser) == 1;
         if (fromObserver && mAttached) {
             updateBatteryStyle();
         }
