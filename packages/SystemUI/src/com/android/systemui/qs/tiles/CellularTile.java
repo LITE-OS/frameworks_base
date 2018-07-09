@@ -206,6 +206,12 @@ public class CellularTile extends QSTileImpl<SignalState> {
         } else {
             state.state = Tile.STATE_ACTIVE;
         }
+
+        if (mDataController.isMobileDataEnabled()) {
+            state.state = Tile.STATE_ACTIVE;
+        } else {
+            state.state = Tile.STATE_INACTIVE;
+        }
     }
 
     @Override
