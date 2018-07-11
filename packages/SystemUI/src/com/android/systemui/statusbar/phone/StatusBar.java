@@ -3070,6 +3070,30 @@ public class StatusBar extends SystemUI implements DemoMode,
         ThemeAccentUtils.unfuckBlackWhiteAccent(mOverlayManager, mCurrentUserId);
     }
 
+    public boolean isCurrentRoundedSameAsFw() {
+        Resources res = null;
+        try {
+            res = mContext.getPackageManager().getResourcesForApplication("com.android.systemui");
+        } catch (NameNotFoundException e) {
+            e.printStackTrace();
+            // If we can't get resources, return true so that updateTheme doesn't attempt to
+            // set corner values
+            return true;
+        }
+
+        // Resource IDs for framework properties
+        int resourceIdRadius = res.getIdentifier("com.android.systemui:dimen/rounded_corner_radius", null, null);
+
+        // Values on framework resources
+        int cornerRadiusRes = res.getDimensionPixelSize(resourceIdRadius);
+
+        // Values in Settings DBs
+        int cornerRadius = Settings.Secure.getInt(mContext.getContentResolver(),
+                Settings.Secure.SYSUI_ROUNDED_SIZE, cornerRadiusRes);
+
+        return (cornerRadiusRes == cornerRadius);
+    }
+
     @Nullable
     public View getAmbientIndicationContainer() {
         return mAmbientIndicationContainer;
@@ -5111,6 +5135,24 @@ public class StatusBar extends SystemUI implements DemoMode,
             // Make sure we have the correct navbar/statusbar colors.
             mStatusBarWindowManager.setKeyguardDark(useDarkText);
         }
+        boolean sysuiRoundedFwvals = Settings.Secure.getIntForUser(mContext.getContentResolver(),
+                    Settings.Secure.SYSUI_ROUNDED_FWVALS, 1, mCurrentUserId) == 1;
+        if (sysuiRoundedFwvals && !isCurrentRoundedSameAsFw()) {
+
+            Resources res = null;
+            try {
+                res = mContext.getPackageManager().getResourcesForApplication("com.android.systemui");
+            } catch (NameNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            if (res != null) {
+                int resourceIdRadius = res.getIdentifier("com.android.systemui:dimen/rounded_corner_radius", null, null);
+                Settings.Secure.putInt(mContext.getContentResolver(),
+                    Settings.Secure.SYSUI_ROUNDED_SIZE, res.getDimensionPixelSize(resourceIdRadius));
+            }
+        }
+
     }
 
     private void updateThemeAndReinflate(){
@@ -6360,6 +6402,9 @@ public class StatusBar extends SystemUI implements DemoMode,
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.LOCKSCREEN_DATE_SELECTION),
                     false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.Secure.getUriFor(
+                    Settings.Secure.SYSUI_ROUNDED_FWVALS),
+                    false, this, UserHandle.USER_ALL);
         }
 
         @Override
@@ -6393,7 +6438,8 @@ public class StatusBar extends SystemUI implements DemoMode,
 		        setStatusBarWindowViewOptions();
             } else if (uri.equals(Settings.System.getUriFor(
                     Settings.System.SYSTEM_UI_THEME)) || uri.equals(Settings.System.getUriFor(
-                    Settings.System.SYSTEM_THEME_CURRENT_OVERLAY))) {
+                    Settings.System.SYSTEM_THEME_CURRENT_OVERLAY)) ||
+                        uri.equals(Settings.Secure.getUriFor(Settings.Secure.SYSUI_ROUNDED_FWVALS))) {
                 updateThemeAndReinflate();
             } else if (uri.equals(Settings.System.getUriFor(
                     Settings.System.ACCENT_PICKER))) {

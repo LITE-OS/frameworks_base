@@ -6070,6 +6070,17 @@ public final class Settings {
                 Global.DEVELOPMENT_SETTINGS_ENABLED;
 
         /**
+         * Setting to allow setting rounded corner size
+         */
+        public static final String SYSUI_ROUNDED_SIZE = "sysui_rounded_size";
+
+        /**
+         * Setting to disable rounded corner preferences and use frameworks values instead
+         * @hide
+         */
+        public static final String SYSUI_ROUNDED_FWVALS = "sysui_rounded_fwvals";
+
+        /**
          * When the user has enable the option to have a "bug report" command
          * in the power menu.
          * @deprecated Use {@link android.provider.Settings.Global#BUGREPORT_IN_POWER_MENU} instead
