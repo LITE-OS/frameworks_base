@@ -16,6 +16,11 @@
 -->
 <resources>
 
+  <!-- Volume Seek Bar -->
+  <java-symbol type="style" name="LiteVolumeSeekBar" />
+  <java-symbol type="drawable" name="lite_volume_seekbar" />
+  <java-symbol type="drawable" name="lite_seek_bar_thumb" />
+
   <!-- LiteOS Analog clock -->
   <java-symbol type="drawable" name="lite_clock_dial" />
   <java-symbol type="drawable" name="lite_clock_dial_ambient" />
