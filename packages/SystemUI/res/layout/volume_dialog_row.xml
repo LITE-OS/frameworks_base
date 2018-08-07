@@ -28,7 +28,8 @@
 
         <SeekBar
             android:id="@+id/volume_row_slider"
-            android:layout_width="195dp"
+            style="@*android:style/LiteVolumeSeekBar"
+            android:layout_width="210dp"
             android:layout_height="match_parent"
             android:layout_gravity="center"
             android:gravity="center"
