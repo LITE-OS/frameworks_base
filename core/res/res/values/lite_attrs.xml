@@ -21,12 +21,6 @@
 
 <resources>
 
-    <!-- Volume Seek Bar -->
-    <declare-styleable name="LiteVolumeSeekBar">
-        <attr name="lite_volume_seekbar" format="reference"/>
-        <attr name="lite_seek_bar_thumb" format="reference"/>
-    </declare-styleable>
-
     <!-- Custom Analog clock -->
     <declare-styleable name="CustomAnalogClock">
         <attr name="custom_dial" format="reference"/>
