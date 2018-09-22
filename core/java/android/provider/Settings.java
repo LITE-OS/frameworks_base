@@ -8071,6 +8071,16 @@ public final class Settings {
                 "packages_to_clear_data_before_full_restore";
 
         /**
+         * Setting to allow setting rounded corner size
+         */
+        public static final String SYSUI_ROUNDED_SIZE = "sysui_rounded_size";
+         /**
+         * Setting to disable rounded corner preferences and use frameworks values instead
+         * @hide
+         */
+        public static final String SYSUI_ROUNDED_FWVALS = "sysui_rounded_fwvals";
+
+        /**
          * This are the settings to be backed up.
          *
          * NOTE: Settings are backed up and restored in the order they appear

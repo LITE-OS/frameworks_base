@@ -633,6 +633,8 @@ public class StatusBar extends SystemUI implements DemoMode,
     private boolean mVibrateOnOpening;
     private VibratorHelper mVibratorHelper;
 
+    private int mCurrentUserId;
+
     @Override
     public void start() {
         mGroupManager = Dependency.get(NotificationGroupManager.class);
@@ -754,6 +756,8 @@ public class StatusBar extends SystemUI implements DemoMode,
         }
 
         setHeadsUpUser(mLockscreenUserManager.getCurrentUserId());
+
+        mCurrentUserId = ActivityManager.getCurrentUser();
 
         IntentFilter internalFilter = new IntentFilter();
         internalFilter.addAction(BANNER_ACTION_CANCEL);
@@ -2119,6 +2123,16 @@ public class StatusBar extends SystemUI implements DemoMode,
             e.printStackTrace();
         }
         return themeInfo != null && themeInfo.isEnabled();
+    }
+
+    public boolean isCurrentRoundedSameAsFw() {
+         // Resource IDs for framework properties
+        int cornerRadiusRes = mContext.getResources().getDimensionPixelSize(
+                R.dimen.rounded_corner_radius);
+          // Values in Settings DBs
+        int cornerRadius = Settings.Secure.getInt(mContext.getContentResolver(),
+                Settings.Secure.SYSUI_ROUNDED_SIZE, cornerRadiusRes);
+         return (cornerRadiusRes == cornerRadius);
     }
 
     @Nullable
@@ -3958,6 +3972,17 @@ public class StatusBar extends SystemUI implements DemoMode,
             // Make sure we have the correct navbar/statusbar colors.
             mStatusBarWindowManager.setKeyguardDark(useDarkText);
         }
+
+        boolean sysuiRoundedFwvals = Settings.Secure.getIntForUser(mContext.getContentResolver(),
+                    Settings.Secure.SYSUI_ROUNDED_FWVALS, 1, mCurrentUserId) == 1;
+        if (sysuiRoundedFwvals && !isCurrentRoundedSameAsFw()) {
+            int resourceIdRadius = mContext.getResources().getDimensionPixelSize(
+                R.dimen.rounded_corner_radius);
+
+            Settings.Secure.putInt(mContext.getContentResolver(),
+                Settings.Secure.SYSUI_ROUNDED_SIZE, resourceIdRadius);
+        }
+
     }
 
     private void updateDozingState() {
@@ -4614,13 +4639,22 @@ public class StatusBar extends SystemUI implements DemoMode,
         }
 
         void observe() {
+            ContentResolver resolver = mContext.getContentResolver();
+            resolver.registerContentObserver(Settings.Secure.getUriFor(
+                    Settings.Secure.SYSUI_ROUNDED_FWVALS),
+                    false, this, UserHandle.USER_ALL);
         }
 
         @Override
         public void onChange(boolean selfChange, Uri uri) {
+            if (uri.equals(Settings.Secure.getUriFor(
+                    Settings.Secure.SYSUI_ROUNDED_FWVALS))) {
+                updateTheme();
+            }
         }
 
         public void update() {
+            updateTheme();
         }
     }
 
