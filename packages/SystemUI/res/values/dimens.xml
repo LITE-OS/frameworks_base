@@ -941,7 +941,7 @@
     <dimen name="bottom_padding">48dp</dimen>
     <dimen name="edge_margin">8dp</dimen>
 
-    <dimen name="rounded_corner_radius">0dp</dimen>
+    <dimen name="rounded_corner_radius">1dp</dimen>
     <dimen name="rounded_corner_radius_top">0dp</dimen>
     <dimen name="rounded_corner_radius_bottom">0dp</dimen>
     <dimen name="rounded_corner_content_padding">0dp</dimen>

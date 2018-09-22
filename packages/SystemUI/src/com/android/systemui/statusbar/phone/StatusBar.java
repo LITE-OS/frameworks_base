@@ -2144,6 +2144,17 @@ public class StatusBar extends SystemUI implements DemoMode,
         }
     }
 
+    public boolean isCurrentRoundedSameAsFw() {
+         // Resource IDs for framework properties
+        int cornerRadiusRes = mContext.getResources().getDimensionPixelSize(
+                R.dimen.rounded_corner_radius);
+
+         // Values in Settings DBs
+        int cornerRadius = Settings.Secure.getInt(mContext.getContentResolver(),
+                Settings.Secure.SYSUI_ROUNDED_SIZE, cornerRadiusRes);
+         return (cornerRadiusRes == cornerRadius);
+    }
+
     @Nullable
     public View getAmbientIndicationContainer() {
         return mAmbientIndicationContainer;
@@ -4047,6 +4058,17 @@ public class StatusBar extends SystemUI implements DemoMode,
             // Make sure we have the correct navbar/statusbar colors.
             mStatusBarWindowManager.setKeyguardDark(useDarkText);
         }
+
+        boolean sysuiRoundedFwvals = Settings.Secure.getIntForUser(mContext.getContentResolver(),
+                    Settings.Secure.SYSUI_ROUNDED_FWVALS, 1, mCurrentUserId) == 1;
+        if (sysuiRoundedFwvals && !isCurrentRoundedSameAsFw()) {
+            int resourceIdRadius = mContext.getResources().getDimensionPixelSize(
+                R.dimen.rounded_corner_radius);
+
+            Settings.Secure.putInt(mContext.getContentResolver(),
+                Settings.Secure.SYSUI_ROUNDED_SIZE, resourceIdRadius);
+        }
+
     }
 
     // Switches theme accent from to another or back to stock
@@ -4927,8 +4949,11 @@ public class StatusBar extends SystemUI implements DemoMode,
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.STATUS_BAR_QUICK_QS_PULLDOWN),
                     false, this, UserHandle.USER_ALL);
-	    resolver.registerContentObserver(Settings.System.getUriFor(
+            resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.DOUBLE_TAP_SLEEP_GESTURE),
+                    false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.Secure.getUriFor(
+                    Settings.Secure.SYSUI_ROUNDED_FWVALS),
                     false, this, UserHandle.USER_ALL);
         }
 
@@ -4958,6 +4983,9 @@ public class StatusBar extends SystemUI implements DemoMode,
             } else if (uri.equals(Settings.System.getUriFor(
                 Settings.System.DOUBLE_TAP_SLEEP_GESTURE))) {
                 setStatusBarWindowViewOptions();
+            } else if (uri.equals(Settings.Secure.getUriFor(
+                    Settings.Secure.SYSUI_ROUNDED_FWVALS))) {
+                updateTheme();
             }
         }
 
