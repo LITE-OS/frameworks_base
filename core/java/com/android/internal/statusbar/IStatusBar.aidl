@@ -100,6 +100,11 @@ oneway interface IStatusBar
     void restartUI();
 
     /**
+     * Toggles the devices flashlight.
+     */
+    void toggleFlashlight();
+
+    /**
      * Notifies the status bar that a camera launch gesture has been detected.
      *
      * @param source the identifier for the gesture, see {@link StatusBarManager}
@@ -151,11 +156,4 @@ oneway interface IStatusBar
     void onFingerprintError(String error);
     // Used to hide the fingerprint dialog when the authenticationclient is stopped
     void hideFingerprintDialog();
-
-    /**
-     * Lite Open Source
-     */
-    void toggleFlashlight();
-    void toggleCameraFlashOn();
-    void toggleCameraFlashOff();
 }

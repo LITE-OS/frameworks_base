@@ -4439,15 +4439,6 @@ public final class Settings {
         public static final String AUTO_ANSWER_CALL_KEY = "auto_answer_call_key";
 
         /**
-         * @hide
-         */
-        public static final String FLASH_ON_CALL_WAITING = "flash_on_call_waiting";
-        /**
-         * @hide
-         */
-        public static final String FLASH_ON_CALLWAITING_DELAY = "flash_on_call_waiting_delay";
-
-        /**
          * Settings to backup. This is here so that it's in the same place as the settings
          * keys and easy to update.
          *
