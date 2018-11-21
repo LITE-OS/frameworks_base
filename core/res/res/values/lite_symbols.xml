@@ -76,4 +76,6 @@
     <java-symbol type="string" name="reboot_message" />
     <java-symbol type="string" name="reboot_confirm" />
 
+    <!-- Whether device has super charging support -->
+    <java-symbol type="bool" name="config_hasSuperCharger" />
 </resources>

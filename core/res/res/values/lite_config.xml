@@ -59,4 +59,6 @@
     -->
     <integer name="config_cameraPowerDoubleTapMinTime">0</integer>
 
+    <!-- Whether device has super charging support -->
+    <bool name="config_hasSuperCharger">false</bool>
 </resources>
