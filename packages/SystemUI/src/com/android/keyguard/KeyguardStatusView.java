@@ -297,6 +297,9 @@ public class KeyguardStatusView extends GridLayout implements
             mOwnerInfo.setTextSize(TypedValue.COMPLEX_UNIT_PX,
                     getResources().getDimensionPixelSize(R.dimen.widget_label_font_size));
         }
+        if (mKeyguardSlice != null) {
+            mKeyguardSlice.refresh();
+        }
     }
 
     public void dozeTimeTick() {

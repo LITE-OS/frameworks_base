@@ -78,4 +78,7 @@
 
     <!-- Whether device has super charging support -->
     <java-symbol type="bool" name="config_hasSuperCharger" />
+
+    <!-- System fonts -->
+    <java-symbol type="array" name="config_fontPackages" />
 </resources>
