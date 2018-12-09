@@ -59,6 +59,7 @@ import android.app.WallpaperManager;
 import android.app.admin.DevicePolicyManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentCallbacks2;
+import android.content.ContentResolver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -72,6 +73,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.UserInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.database.ContentObserver;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.graphics.PointF;
@@ -780,6 +782,8 @@ public class StatusBar extends SystemUI implements DemoMode,
         // Lastly, call to the icon policy to install/update all the icons.
         mIconPolicy = new PhoneStatusBarPolicy(mContext, mIconController);
         mSignalPolicy = new StatusBarSignalPolicy(mContext, mIconController);
+
+        mLiteSettingsObserver.observe();
 
         mUnlockMethodCache = UnlockMethodCache.getInstance(mContext);
         mUnlockMethodCache.addListener(this);
@@ -3195,6 +3199,7 @@ public class StatusBar extends SystemUI implements DemoMode,
         updateNotificationViews();
         mMediaManager.clearCurrentMediaNotification();
         setLockscreenUser(newUserId);
+        mLiteSettingsObserver.update();
     }
 
     @Override
@@ -4600,6 +4605,24 @@ public class StatusBar extends SystemUI implements DemoMode,
             }
         }
     };
+
+    // Lite settins observer
+    private LiteSettingsObserver mLiteSettingsObserver = new LiteSettingsObserver(mHandler);
+    private class LiteSettingsObserver extends ContentObserver {
+        LiteSettingsObserver(Handler handler) {
+            super(handler);
+        }
+
+        void observe() {
+        }
+
+        @Override
+        public void onChange(boolean selfChange, Uri uri) {
+        }
+
+        public void update() {
+        }
+    }
 
     public int getWakefulnessState() {
         return mWakefulnessLifecycle.getWakefulness();
