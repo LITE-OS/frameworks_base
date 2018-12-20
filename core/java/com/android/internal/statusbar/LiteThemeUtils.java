@@ -25,7 +25,9 @@ public class LiteThemeUtils {
     public static final String TAG = "LiteThemeUtils";
 
     private static final String[] DARK_THEMES = {
-        "com.android.systemui.theme.dark", // 0
+        "com.android.systemui.theme.dark",
+        "com.android.system.theme.dark",
+        "com.android.settings.theme.dark",
     };
 
     // Check for the dark system theme
