@@ -138,6 +138,7 @@ import com.android.internal.colorextraction.ColorExtractor;
 import com.android.internal.logging.MetricsLogger;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
 import com.android.internal.statusbar.IStatusBarService;
+import com.android.internal.statusbar.LiteThemeUtils;
 import com.android.internal.statusbar.NotificationVisibility;
 import com.android.internal.statusbar.StatusBarIcon;
 import com.android.internal.util.lite.LiteUtils;
@@ -2134,14 +2135,7 @@ public class StatusBar extends SystemUI implements DemoMode,
     }
 
     public boolean isUsingDarkTheme() {
-        OverlayInfo themeInfo = null;
-        try {
-            themeInfo = mOverlayManager.getOverlayInfo("com.android.systemui.theme.dark",
-                    mLockscreenUserManager.getCurrentUserId());
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
-        return themeInfo != null && themeInfo.isEnabled();
+        return LiteThemeUtils.isUsingDarkTheme(mOverlayManager, mCurrentUserId);
     }
 
     public boolean isCurrentRoundedSameAsFw() {
@@ -3990,12 +3984,7 @@ public class StatusBar extends SystemUI implements DemoMode,
         final boolean useDarkTheme = wallpaperWantsDarkTheme || nightModeWantsDarkTheme;
         if (isUsingDarkTheme() != useDarkTheme) {
             mUiOffloadThread.submit(() -> {
-                try {
-                    mOverlayManager.setEnabled("com.android.systemui.theme.dark",
-                            useDarkTheme, mLockscreenUserManager.getCurrentUserId());
-                } catch (RemoteException e) {
-                    Log.w(TAG, "Can't change theme", e);
-                }
+                LiteThemeUtils.setLightDarkTheme(mOverlayManager, mCurrentUserId, useDarkTheme);
             });
         }
 
