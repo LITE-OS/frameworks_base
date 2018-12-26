@@ -46,6 +46,17 @@
         android:layout_weight="1"
         android:gravity="center_vertical|center_horizontal" />
 
+    <com.android.systemui.statusbar.policy.NetworkTrafficQs
+        android:id="@+id/networkTrafficQs"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="2dp"
+        android:singleLine="false"
+        android:textColor="#FFFFFF"
+        android:fontFamily="sans-serif-condensed"
+        android:gravity="right|center_vertical"/>
+
     <com.android.systemui.BatteryMeterView
         android:id="@+id/battery"
         android:layout_height="match_parent"

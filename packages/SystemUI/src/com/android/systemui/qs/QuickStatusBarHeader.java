@@ -119,6 +119,8 @@ public class QuickStatusBarHeader extends RelativeLayout implements
     private Clock mClockView;
     private DateView mDateView;
 
+    private View mNetworkTrafficQs;
+
     private NextAlarmController mAlarmController;
     private ZenModeController mZenController;
     /** Counts how many times the long press tooltip has been shown to the user. */
@@ -164,6 +166,8 @@ public class QuickStatusBarHeader extends RelativeLayout implements
         mNextAlarmTextView = findViewById(R.id.next_alarm_text);
         mRingerModeIcon = findViewById(R.id.ringer_mode_icon);
         mRingerModeTextView = findViewById(R.id.ringer_mode_text);
+
+        mNetworkTrafficQs = findViewById(R.id.networkTrafficQs);
 
         updateResources();
 
